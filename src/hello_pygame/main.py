@@ -1,34 +1,20 @@
 import pygame, sys
 from pygame.locals import *
-
-pygame.init()
-
-FPS = 60
-pyClock = pygame.time.Clock()
-
-BG_COLOR = (0xC0, 0xC0, 0xC0)
-
-SCREEN_WIDTH = 800
-SCREEN_HEIGHT = 600
-
-DISPLAY_SURFACE = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-DISPLAY_SURFACE.fill(BG_COLOR)
-pygame.display.set_caption("Very cool game")
-
-
-class Player(pygame.sprite.Sprite):
-    def __init__(self):
-        super().__init__()
-        self.image = pygame.image.load("res/reimu.png")
-        self.rect = self.image.get_rect()
-        self.rect.center = (400, 500)
-
-    def draw(self, surface):
-        surface.blit(self.image, self.rect)
+from hello_pygame.player import Player
+from hello_pygame.settings import *
 
 
 def main():
+
+    pygame.init()
+
+    pyClock = pygame.time.Clock()
+
+    DISPLAY_SURFACE = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+    pygame.display.set_caption("Very cool game")
+
     print("Enjoy :3")
+
     P1 = Player()
 
     while True:
