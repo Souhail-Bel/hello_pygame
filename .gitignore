@@ -8,3 +8,7 @@ wheels/
 
 # Virtual environments
 .venv
+
+# Aseprite files
+res/**/*.ase
+res/**/*.aseprite
