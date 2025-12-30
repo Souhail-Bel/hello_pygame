@@ -33,6 +33,6 @@ uv sync
 Then, whenever you want to run it, simply type:
 
 ```bash
-uv run main.py
+uv run play
 ```
 

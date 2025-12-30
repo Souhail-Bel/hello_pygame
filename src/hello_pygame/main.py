@@ -27,7 +27,8 @@ class Player(pygame.sprite.Sprite):
         surface.blit(self.image, self.rect)
 
 
-def GameLoop():
+def main():
+    print("Enjoy :3")
     P1 = Player()
 
     while True:
@@ -44,5 +45,4 @@ def GameLoop():
 
 
 if __name__ == "__main__":
-    print("Enjoy :3")
-    GameLoop()
+    main()
