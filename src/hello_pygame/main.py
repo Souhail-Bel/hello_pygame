@@ -23,6 +23,8 @@ def main():
                 pygame.quit()
                 sys.exit()
 
+        P1.update()
+
         DISPLAY_SURFACE.fill(BG_COLOR)
         P1.draw(DISPLAY_SURFACE)
 
