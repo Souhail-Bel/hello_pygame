@@ -5,7 +5,7 @@ description = "my pygame hello world"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
-    "pygame>=2.6.1",
+    "pygame-ce>=2.5.6",
 ]
 
 # get uv to check /src
