@@ -1,5 +1,6 @@
 import pygame, sys
 from pygame.locals import *
+from hello_pygame.gfx import Background
 from hello_pygame.player import Player
 from hello_pygame.settings import *
 
@@ -16,6 +17,7 @@ def main():
     print("Enjoy :3")
 
     P1 = Player()
+    BG = Background()
 
     while True:
         for event in pygame.event.get():
@@ -25,7 +27,12 @@ def main():
 
         P1.update()
 
-        DISPLAY_SURFACE.fill(BG_COLOR)
+        # DISPLAY_SURFACE.fill(BG_COLOR)
+
+        BG.draw_sky(DISPLAY_SURFACE)
+        BG.draw_landscape(DISPLAY_SURFACE)
+        BG.draw_tower(DISPLAY_SURFACE)
+
         P1.draw(DISPLAY_SURFACE)
 
         pygame.display.update()
