@@ -1,11 +1,39 @@
 import pygame
 from pygame.locals import *
+from hello_pygame.entities import LivingSprite
 from hello_pygame.settings import RES_DIR, SCREEN_HEIGHT, SCREEN_WIDTH
 
 
-class Player(pygame.sprite.Sprite):
+class InputManager:
+    def __init__(self, rect: pygame.Rect, SPEED):
+        self.rect = rect
+        self.SPEED = SPEED
+
+    def handle_input(self):
+
+        pressed_keys = pygame.key.get_pressed()
+
+        # assert self.rect is not None
+        if self.rect.left > 0:
+            if pressed_keys[K_LEFT]:
+                self.rect.move_ip(-self.SPEED, 0)
+
+        if self.rect.right < SCREEN_WIDTH:
+            if pressed_keys[K_RIGHT]:
+                self.rect.move_ip(self.SPEED, 0)
+
+        if self.rect.bottom < SCREEN_HEIGHT:
+            if pressed_keys[K_DOWN]:
+                self.rect.move_ip(0, self.SPEED)
+
+        if self.rect.top > 0:
+            if pressed_keys[K_UP]:
+                self.rect.move_ip(0, -self.SPEED)
+
+
+class Player(LivingSprite, InputManager):
     def __init__(self):
-        super().__init__()
+        super().__init__(init_HP=3)
 
         self.sprites = []
         self.sprites.append(pygame.image.load(RES_DIR / "reimu_1.png"))
@@ -14,8 +42,12 @@ class Player(pygame.sprite.Sprite):
         self.current_sprite = 0
 
         self.image = self.sprites[self.current_sprite]
-        self.rect = self.image.get_rect()
-        self.rect.center = (399, 500)
+        # Type hinting is used cuz Python is gonna complain about it being None
+        self.rect: pygame.Rect = self.image.get_rect()
+        self.rect.center = (SCREEN_WIDTH // 2, 500)
+
+        # self.SPEED = 5
+        self.im: InputManager = InputManager(rect=self.rect, SPEED=5)
 
     def animate(self):
         # incrementing by 1 will change  every single frame, too fast
@@ -28,26 +60,18 @@ class Player(pygame.sprite.Sprite):
         self.image = self.sprites[int(self.current_sprite)]
 
     def update(self):
-        assert self.rect is not None
+        if not self.is_alive:
+            return
+
         self.animate()
-
-        pressed_keys = pygame.key.get_pressed()
-
-        if self.rect.left > 0:
-            if pressed_keys[K_LEFT]:
-                self.rect.move_ip(-5, 0)
-
-        if self.rect.right < SCREEN_WIDTH:
-            if pressed_keys[K_RIGHT]:
-                self.rect.move_ip(5, 0)
-
-        if self.rect.bottom < SCREEN_HEIGHT:
-            if pressed_keys[K_DOWN]:
-                self.rect.move_ip(0, 5)
-
-        if self.rect.top > 0:
-            if pressed_keys[K_UP]:
-                self.rect.move_ip(0, -5)
+        self.im.handle_input()
 
     def draw(self, surface):
         surface.blit(self.image, self.rect)
+
+    def on_damage(self):
+        print("Ouchie")
+
+    def on_death(self):
+        self.rect.move_ip(0, 0)
+        self.kill()
