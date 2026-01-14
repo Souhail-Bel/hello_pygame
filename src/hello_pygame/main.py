@@ -24,6 +24,10 @@ def main():
     bg_buffer = BG.draw_sky()
 
     while True:
+        # since there'll be bullet logic and moving parts...
+        # I don't want my game to run differently on 144Hz or sth
+        dt = pyClock.tick(FPS) / 1000.0
+
         for event in pygame.event.get():
             if event.type == QUIT:
                 pygame.quit()
@@ -35,9 +39,8 @@ def main():
                 elif event.key == pygame.K_c:
                     P1.damage()
 
-        P1.update()
+        P1.update(dt)
 
-        # display_buffer = [BG.draw_landscape(), *BG.draw_tower(), P1.draw()]
         display_buffer = itertools.chain(
             BG.draw_landscape(), BG.draw_tower(), P1.draw()
         )
@@ -46,7 +49,6 @@ def main():
         DISPLAY_SURFACE.fblits(display_buffer)
 
         pygame.display.update()
-        pyClock.tick(FPS)
 
 
 if __name__ == "__main__":
