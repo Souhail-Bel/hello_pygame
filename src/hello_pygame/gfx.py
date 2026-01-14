@@ -1,14 +1,14 @@
 from typing import Generator
 import pygame
-from hello_pygame.settings import RES_DIR, SCREEN_HEIGHT, SCREEN_WIDTH
+from hello_pygame.settings import IMG_DICT, RES_DIR, SCREEN_HEIGHT, SCREEN_WIDTH
 
 
 class Background:
     def __init__(self):
-        self.BG_ECLIPSE = pygame.image.load(RES_DIR / "eclipse.png")
-        self.BG_LANDSCAPE = pygame.image.load(RES_DIR / "bg.png")
-        self.BG_SKY = pygame.image.load(RES_DIR / "sky.png")
-        self.BG_TOWER = pygame.image.load(RES_DIR / "tower.png")
+        self.BG_ECLIPSE = IMG_DICT["eclipse"]
+        self.BG_LANDSCAPE = IMG_DICT["bg"]
+        self.BG_SKY = IMG_DICT["sky"]
+        self.BG_TOWER = IMG_DICT["tower"]
         self.tower_height = self.BG_TOWER.get_height()
 
         self.landscape_offset = 0

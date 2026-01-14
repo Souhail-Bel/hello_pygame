@@ -3,7 +3,7 @@ import pygame
 from pygame.locals import *
 from pygame.math import Vector2
 from hello_pygame.entities import LivingSprite
-from hello_pygame.settings import RES_DIR, SCREEN_HEIGHT, SCREEN_WIDTH
+from hello_pygame.settings import IMG_DICT, SCREEN_HEIGHT, SCREEN_WIDTH
 
 
 class InputManager:
@@ -39,9 +39,7 @@ class Player(LivingSprite, InputManager):
     def __init__(self):
         super().__init__(init_HP=3)
 
-        self.sprites = []
-        self.sprites.append(pygame.image.load(RES_DIR / "reimu_1.png"))
-        self.sprites.append(pygame.image.load(RES_DIR / "reimu_2.png"))
+        self.sprites = IMG_DICT["reimu"]
 
         self.current_sprite = 0
         # 5 FPS

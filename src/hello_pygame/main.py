@@ -2,6 +2,7 @@ import itertools
 import pygame, sys
 from pygame.locals import *
 from hello_pygame.gfx import Background
+from hello_pygame.items import Bullet
 from hello_pygame.player import Player
 from hello_pygame.settings import *
 
@@ -16,9 +17,12 @@ def main():
     display_buffer = []
     pygame.display.set_caption("Very cool game")
 
+    load_res()
+
     print("Enjoy :3")
 
     P1 = Player()
+    B = Bullet((SCREEN_WIDTH / 2, 500), (0, -1), IMG_DICT["bullet"])
     BG = Background()
 
     bg_buffer = BG.draw_sky()
@@ -40,9 +44,10 @@ def main():
                     P1.damage()
 
         P1.update(dt)
+        B.update(dt)
 
         display_buffer = itertools.chain(
-            BG.draw_landscape(), BG.draw_tower(), P1.draw()
+            BG.draw_landscape(), BG.draw_tower(), B.draw(), P1.draw()
         )
 
         DISPLAY_SURFACE.fblits(bg_buffer)
