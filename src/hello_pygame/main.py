@@ -1,3 +1,4 @@
+import itertools
 import pygame, sys
 from pygame.locals import *
 from hello_pygame.gfx import Background
@@ -12,12 +13,15 @@ def main():
     pyClock = pygame.time.Clock()
 
     DISPLAY_SURFACE = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+    display_buffer = []
     pygame.display.set_caption("Very cool game")
 
     print("Enjoy :3")
 
     P1 = Player()
     BG = Background()
+
+    bg_buffer = BG.draw_sky()
 
     while True:
         for event in pygame.event.get():
@@ -33,13 +37,13 @@ def main():
 
         P1.update()
 
-        # DISPLAY_SURFACE.fill(BG_COLOR)
+        # display_buffer = [BG.draw_landscape(), *BG.draw_tower(), P1.draw()]
+        display_buffer = itertools.chain(
+            [BG.draw_landscape()], BG.draw_tower(), [P1.draw()]
+        )
 
-        BG.draw_sky(DISPLAY_SURFACE)
-        BG.draw_landscape(DISPLAY_SURFACE)
-        BG.draw_tower(DISPLAY_SURFACE)
-
-        P1.draw(DISPLAY_SURFACE)
+        DISPLAY_SURFACE.fblits(bg_buffer)
+        DISPLAY_SURFACE.fblits(display_buffer)
 
         pygame.display.update()
         pyClock.tick(FPS)

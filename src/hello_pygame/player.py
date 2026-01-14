@@ -66,8 +66,8 @@ class Player(LivingSprite, InputManager):
         self.animate()
         self.im.handle_input()
 
-    def draw(self, surface):
-        surface.blit(self.image, self.rect)
+    def draw(self) -> tuple:
+        return (self.image, self.rect)
 
     def on_damage(self):
         print("Ouchie")
