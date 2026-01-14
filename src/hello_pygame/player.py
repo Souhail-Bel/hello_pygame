@@ -6,59 +6,46 @@ from hello_pygame.entities import LivingSprite
 from hello_pygame.settings import IMG_DICT, SCREEN_HEIGHT, SCREEN_WIDTH
 
 
-class InputManager:
-    def __init__(self, rect: pygame.Rect, SPEED):
-        self.rect = rect
-        self.pos = Vector2(SCREEN_WIDTH / 2.0, 500.0)
-        self.rect.center = round(self.pos.x), round(self.pos.y)
-        self.SPEED = SPEED
+class Player(LivingSprite):
+    def __init__(self):
+        super().__init__(init_HP=3)
+
+        # ANIMATION
+        self.sprites = IMG_DICT["reimu"]
+        self.current_sprite = 0
+        self.ANIMATION_SPEED = 5  # FPS
+        self.image = self.sprites[self.current_sprite]
+        # Type hinting is used cuz Python is gonna complain about it being None
+        self.rect: pygame.Rect = self.image.get_rect(center=(SCREEN_WIDTH / 2.0, 500.0))
+
+        # MOVEMENT
+        self.SPEED = 300  # pixels/sec
+        self.pos = Vector2(self.rect.center)
 
     def handle_input(self, dt):
 
         pressed_keys = pygame.key.get_pressed()
 
-        delta_pos = self.SPEED * dt
+        move_dir = Vector2(0, 0)
 
-        # assert self.rect is not None
-        if self.rect.left > 0 and pressed_keys[K_LEFT]:
-            self.pos.x -= delta_pos
+        if pressed_keys[K_LEFT]:
+            move_dir.x -= 1
+        if pressed_keys[K_RIGHT]:
+            move_dir.x += 1
+        if pressed_keys[K_UP]:
+            move_dir.y -= 1
+        if pressed_keys[K_DOWN]:
+            move_dir.y += 1
 
-        if self.rect.right < SCREEN_WIDTH and pressed_keys[K_RIGHT]:
-            self.pos.x += delta_pos
+        if move_dir != Vector2(0, 0):
+            self.pos += move_dir.normalize() * self.SPEED * dt
 
-        if self.rect.bottom < SCREEN_HEIGHT and pressed_keys[K_DOWN]:
-            self.pos.y += delta_pos
-
-        if self.rect.top > 0 and pressed_keys[K_UP]:
-            self.pos.y -= delta_pos
+        self.pos.x = max(0, min(SCREEN_WIDTH, self.pos.x))
+        self.pos.y = max(0, min(SCREEN_HEIGHT, self.pos.y))
 
         self.rect.center = round(self.pos.x), round(self.pos.y)
 
-
-class Player(LivingSprite, InputManager):
-    def __init__(self):
-        super().__init__(init_HP=3)
-
-        self.sprites = IMG_DICT["reimu"]
-
-        self.current_sprite = 0
-        # 5 FPS
-        self.ANIMATION_SPEED = 5
-
-        self.image = self.sprites[self.current_sprite]
-        # Type hinting is used cuz Python is gonna complain about it being None
-        self.rect: pygame.Rect = self.image.get_rect()
-
-        # speed in pixels/sec
-        self.im: InputManager = InputManager(rect=self.rect, SPEED=300)
-
     def animate(self, dt):
-        # incrementing by 1 will change  every single frame, too fast
-        # Reimu's animation is 5 FPS, which takes 12 game loops (of the 60 FPS)
-        # this means we have 0.083333, or 0.08 for short, for each frame
-        # Note that it is frame-dependent
-        # another possible solution is via delta time,
-        # but that would impact update function as well
         self.current_sprite += self.ANIMATION_SPEED * dt
         if self.current_sprite >= len(self.sprites):
             self.current_sprite = 0
@@ -69,7 +56,7 @@ class Player(LivingSprite, InputManager):
             return
 
         self.animate(dt)
-        self.im.handle_input(dt)
+        self.handle_input(dt)
 
     def draw(self) -> Generator[tuple, None, None]:
         yield (self.image, self.rect)
@@ -79,4 +66,3 @@ class Player(LivingSprite, InputManager):
 
     def on_death(self):
         self.rect.move_ip(0, 0)
-        self.kill()
