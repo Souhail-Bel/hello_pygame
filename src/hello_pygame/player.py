@@ -16,9 +16,11 @@ class Orb(AnimatedSprite):
         self.target_offset = Vector2(24.0 * self.side, -32.0)
         self.curr_offset = self.target_offset.copy()
 
-    def update(self, dt, target: Vector2):
+    def update(self, dt: float, target: Vector2, is_focused: bool):
         self.animate(dt)
-        self.curr_offset += (self.target_offset - self.curr_offset) * dt
+        self.curr_offset += (self.target_offset - self.curr_offset) * 7 * dt
+        if is_focused:
+            self.curr_offset.x = self.target_offset.x / 2
         self.rect.center = target + self.curr_offset
 
     def draw(self):
@@ -39,6 +41,7 @@ class Player(LivingSprite, AnimatedSprite):
         self.SPEED = 300  # pixels/sec
         self.pos = Vector2(SCREEN_WIDTH / 2, 500)
         self.rect.center = round(self.pos.x), round(self.pos.y)
+        self.is_focused = False
 
         # BULLETS
         self.bullet_rate = 25  # bullets / sec
@@ -56,6 +59,7 @@ class Player(LivingSprite, AnimatedSprite):
             orb.shoot()
 
     def handle_input(self, dt):
+        self.is_focused = False
 
         pressed_keys = pygame.key.get_pressed()
 
@@ -78,6 +82,9 @@ class Player(LivingSprite, AnimatedSprite):
 
             self.rect.center = round(self.pos.x), round(self.pos.y)
 
+        if pressed_keys[K_RSHIFT] or pressed_keys[K_LSHIFT]:
+            self.is_focused = True
+
         if pressed_keys[K_x] and self.bullet_timer <= 0:
             self.bullet_timer = 1.0 / self.bullet_rate
             self.shoot()
@@ -88,7 +95,7 @@ class Player(LivingSprite, AnimatedSprite):
         self.bullet_timer -= dt
         self.animate(dt)
         for orb in self.orbs:
-            orb.update(dt, self.pos)
+            orb.update(dt, self.pos, self.is_focused)
         self.handle_input(dt)
 
     def draw(self) -> Generator[tuple, None, None]:
