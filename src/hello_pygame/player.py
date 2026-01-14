@@ -7,6 +7,28 @@ from hello_pygame.items import Bullet
 from hello_pygame.settings import IMG_DICT, SCREEN_HEIGHT, SCREEN_WIDTH
 
 
+class Orb(AnimatedSprite):
+    def __init__(self, side: int, bullet_group):
+        super().__init__(sequence=IMG_DICT["orb"], animation_speed=4)
+        self.side = side
+        self.bullet_img = IMG_DICT["bullet"]
+        self.bullet_group = bullet_group
+        self.target_offset = Vector2(24.0 * self.side, -32.0)
+        self.curr_offset = self.target_offset.copy()
+
+    def update(self, dt, target: Vector2):
+        self.animate(dt)
+        self.curr_offset += (self.target_offset - self.curr_offset) * dt
+        self.rect.center = target + self.curr_offset
+
+    def draw(self):
+        yield (self.image, self.rect)
+
+    def shoot(self):
+        b = Bullet(self.rect.center, (0, -1), self.bullet_img, speed=600)
+        self.bullet_group.add(b)
+
+
 class Player(LivingSprite, AnimatedSprite):
     def __init__(self, bullet_group):
         LivingSprite.__init__(self, init_HP=3)
@@ -15,19 +37,23 @@ class Player(LivingSprite, AnimatedSprite):
 
         # MOVEMENT
         self.SPEED = 300  # pixels/sec
-        self.pos = Vector2(self.rect.center)
+        self.pos = Vector2(SCREEN_WIDTH / 2, 500)
+        self.rect.center = round(self.pos.x), round(self.pos.y)
 
         # BULLETS
-        self.bullet_group = bullet_group
-        self.bullet_img = IMG_DICT["bullet"]
         self.bullet_rate = 25  # bullets / sec
         self.bullet_timer = 0.0
-        self.bullet_offset = [Vector2(24, -32), Vector2(-24, -32)]
+        self.bullet_group = bullet_group
+
+        # ORBS
+        self.orbs = [
+            Orb(side=1, bullet_group=self.bullet_group),
+            Orb(side=-1, bullet_group=self.bullet_group),
+        ]
 
     def shoot(self):
-        for offset in self.bullet_offset:
-            b = Bullet(self.pos + offset, (0, -1), self.bullet_img, speed=500)
-            self.bullet_group.add(b)
+        for orb in self.orbs:
+            orb.shoot()
 
     def handle_input(self, dt):
 
@@ -61,10 +87,15 @@ class Player(LivingSprite, AnimatedSprite):
             return
         self.bullet_timer -= dt
         self.animate(dt)
+        for orb in self.orbs:
+            orb.update(dt, self.pos)
         self.handle_input(dt)
 
     def draw(self) -> Generator[tuple, None, None]:
         yield (self.image, self.rect)
+
+        for orb in self.orbs:
+            yield from orb.draw()
 
     def on_damage(self):
         print("Ouchie")

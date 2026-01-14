@@ -6,12 +6,13 @@ ROOT_DIR = Path(__file__).parent.parent.parent
 RES_DIR = ROOT_DIR / "res"
 
 IMG_SRC = {
-    "reimu": [RES_DIR / "reimu_1.png", RES_DIR / "reimu_2.png"],
-    "eclipse": RES_DIR / "eclipse.png",
-    "bg": RES_DIR / "bg.png",
-    "sky": RES_DIR / "sky.png",
-    "tower": RES_DIR / "tower.png",
-    "bullet": RES_DIR / "bullet.png",
+    "reimu": [f"reimu_{i}.png" for i in [1, 2]],
+    "eclipse": "eclipse.png",
+    "bg": "bg.png",
+    "sky": "sky.png",
+    "tower": "tower.png",
+    "bullet": "bullet.png",
+    "orb": [f"orb{i}.png" for i in range(1, 5)],
 }
 
 IMG_DICT = {}
@@ -23,9 +24,9 @@ def load_res():
         if isinstance(v, list):
             IMG_DICT[k] = []
             for a in v:
-                IMG_DICT[k].append(pygame.image.load(a).convert_alpha())
+                IMG_DICT[k].append(pygame.image.load(RES_DIR / a).convert_alpha())
         else:
-            IMG_DICT[k] = pygame.image.load(v).convert_alpha()
+            IMG_DICT[k] = pygame.image.load(RES_DIR / v).convert_alpha()
 
 
 SCREEN_WIDTH = 800
