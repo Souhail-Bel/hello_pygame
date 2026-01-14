@@ -3,6 +3,11 @@ import pygame
 from hello_pygame.settings import IMG_DICT, RES_DIR, SCREEN_HEIGHT, SCREEN_WIDTH
 
 
+def stream_group(group: pygame.sprite.Group):
+    for sprite in group:
+        yield from sprite.draw()
+
+
 class Background:
     def __init__(self):
         self.BG_ECLIPSE = IMG_DICT["eclipse"]

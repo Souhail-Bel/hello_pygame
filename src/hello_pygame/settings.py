@@ -23,9 +23,9 @@ def load_res():
         if isinstance(v, list):
             IMG_DICT[k] = []
             for a in v:
-                IMG_DICT[k].append(pygame.image.load(a))
+                IMG_DICT[k].append(pygame.image.load(a).convert_alpha())
         else:
-            IMG_DICT[k] = pygame.image.load(v)
+            IMG_DICT[k] = pygame.image.load(v).convert_alpha()
 
 
 SCREEN_WIDTH = 800

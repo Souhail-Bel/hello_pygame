@@ -1,7 +1,7 @@
 import itertools
 import pygame, sys
 from pygame.locals import *
-from hello_pygame.gfx import Background
+from hello_pygame.gfx import Background, stream_group
 from hello_pygame.items import Bullet
 from hello_pygame.player import Player
 from hello_pygame.settings import *
@@ -21,8 +21,9 @@ def main():
 
     print("Enjoy :3")
 
-    P1 = Player()
-    B = Bullet((SCREEN_WIDTH / 2, 500), (0, -1), IMG_DICT["bullet"])
+    Player_Bullets = pygame.sprite.Group()
+    P1 = Player(Player_Bullets)
+
     BG = Background()
 
     bg_buffer = BG.draw_sky()
@@ -44,10 +45,13 @@ def main():
                     P1.damage()
 
         P1.update(dt)
-        B.update(dt)
+        P1.bullet_group.update(dt)
 
         display_buffer = itertools.chain(
-            BG.draw_landscape(), BG.draw_tower(), B.draw(), P1.draw()
+            BG.draw_landscape(),
+            BG.draw_tower(),
+            stream_group(Player_Bullets),
+            P1.draw(),
         )
 
         DISPLAY_SURFACE.fblits(bg_buffer)

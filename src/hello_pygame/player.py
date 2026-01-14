@@ -3,11 +3,12 @@ import pygame
 from pygame.locals import *
 from pygame.math import Vector2
 from hello_pygame.entities import LivingSprite
+from hello_pygame.items import Bullet
 from hello_pygame.settings import IMG_DICT, SCREEN_HEIGHT, SCREEN_WIDTH
 
 
 class Player(LivingSprite):
-    def __init__(self):
+    def __init__(self, bullet_group):
         super().__init__(init_HP=3)
 
         # ANIMATION
@@ -21,6 +22,16 @@ class Player(LivingSprite):
         # MOVEMENT
         self.SPEED = 300  # pixels/sec
         self.pos = Vector2(self.rect.center)
+
+        # BULLETS
+        self.bullet_group = bullet_group
+        self.bullet_img = IMG_DICT["bullet"]
+        self.bullet_rate = 25  # bullets / sec
+        self.bullet_timer = 0.0
+
+    def shoot(self):
+        b = Bullet(self.pos, (0, -1), self.bullet_img, speed=500)
+        self.bullet_group.add(b)
 
     def handle_input(self, dt):
 
@@ -40,10 +51,14 @@ class Player(LivingSprite):
         if move_dir != Vector2(0, 0):
             self.pos += move_dir.normalize() * self.SPEED * dt
 
-        self.pos.x = max(0, min(SCREEN_WIDTH, self.pos.x))
-        self.pos.y = max(0, min(SCREEN_HEIGHT, self.pos.y))
+            self.pos.x = max(0, min(SCREEN_WIDTH, self.pos.x))
+            self.pos.y = max(0, min(SCREEN_HEIGHT, self.pos.y))
 
-        self.rect.center = round(self.pos.x), round(self.pos.y)
+            self.rect.center = round(self.pos.x), round(self.pos.y)
+
+        if pressed_keys[K_x] and self.bullet_timer <= 0:
+            self.bullet_timer = 1.0 / self.bullet_rate
+            self.shoot()
 
     def animate(self, dt):
         self.current_sprite += self.ANIMATION_SPEED * dt
@@ -54,7 +69,7 @@ class Player(LivingSprite):
     def update(self, dt: float):
         if not self.is_alive:
             return
-
+        self.bullet_timer -= dt
         self.animate(dt)
         self.handle_input(dt)
 
