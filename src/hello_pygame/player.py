@@ -1,3 +1,4 @@
+from collections.abc import Generator
 import pygame
 from pygame.locals import *
 from hello_pygame.entities import LivingSprite
@@ -66,8 +67,8 @@ class Player(LivingSprite, InputManager):
         self.animate()
         self.im.handle_input()
 
-    def draw(self) -> tuple:
-        return (self.image, self.rect)
+    def draw(self) -> Generator[tuple, None, None]:  # -> tuple:
+        yield (self.image, self.rect)
 
     def on_damage(self):
         print("Ouchie")

@@ -39,7 +39,7 @@ def main():
 
         # display_buffer = [BG.draw_landscape(), *BG.draw_tower(), P1.draw()]
         display_buffer = itertools.chain(
-            [BG.draw_landscape()], BG.draw_tower(), [P1.draw()]
+            BG.draw_landscape(), BG.draw_tower(), P1.draw()
         )
 
         DISPLAY_SURFACE.fblits(bg_buffer)

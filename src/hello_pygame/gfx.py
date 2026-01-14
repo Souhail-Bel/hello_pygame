@@ -1,3 +1,4 @@
+from typing import Generator
 import pygame
 from hello_pygame.settings import RES_DIR, SCREEN_HEIGHT, SCREEN_WIDTH
 
@@ -19,19 +20,17 @@ class Background:
     def draw_sky(self) -> list:
         return [(self.BG_SKY, (0, 0)), (self.BG_ECLIPSE, (SCREEN_WIDTH - 200, 50))]
 
-    def draw_landscape(self) -> tuple:
+    def draw_landscape(self) -> Generator[tuple, None, None]:
+        if self.landscape_offset >= SCREEN_HEIGHT:
+            return
         self.landscape_offset += self.landscape_speed
-        return (self.BG_LANDSCAPE, (0, self.landscape_offset))
+        yield (self.BG_LANDSCAPE, (0, self.landscape_offset))
 
-    def draw_tower(self) -> list:
+    def draw_tower(self) -> Generator[tuple, None, None]:
         self.tower_offset += self.tower_speed
 
         if self.tower_offset >= self.tower_height * 2:
             self.tower_offset = self.tower_height
 
-        titanic_tower = []
         for y in range(3):
-            titanic_tower.append(
-                (self.BG_TOWER, (0, -y * self.tower_height + self.tower_offset))
-            )
-        return titanic_tower
+            yield (self.BG_TOWER, (0, -y * self.tower_height + self.tower_offset))
