@@ -19,7 +19,7 @@ def main():
 
     load_res()
 
-    print("Enjoy :3")
+    print("Enjoy UwU")
 
     Player_Bullets = pygame.sprite.Group()
     P1 = Player(Player_Bullets)
