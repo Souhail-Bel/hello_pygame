@@ -1,7 +1,8 @@
-# Dodge the Falling Blocks
-Much like the name suggests, this is a game about dodging falling blocks. \
+# Space Shooters... Touhou'd
+Much like the name suggests, this is a game that replicates space shooters... but more like Touhou's bullet hell :P \
 My hello_pygame.
 
+All assets here were drawn by me via LibreSprite (except for the sky, that's a real sky that's been palletized).
 
 
 ## 🚀 How do I run it?
