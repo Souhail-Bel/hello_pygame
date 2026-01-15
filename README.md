@@ -6,8 +6,8 @@ All assets here were drawn by me via LibreSprite (except for the sky, that's a r
 
 
 ## 🚀 How do I run it?
-First, install [`uv`](https://github.com/astral-sh/uv) which is an extremely fast and easy to use package and project manager.
-You can so either from [PyPI](https://pypi.org/project/uv/):
+First, install [`uv`](https://github.com/astral-sh/uv) which is an extremely fast and easy to use package and project manager. \
+You can do so either from [PyPI](https://pypi.org/project/uv/):
 ```bash
 # Using pip
 pip install uv
