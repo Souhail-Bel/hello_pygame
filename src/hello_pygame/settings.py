@@ -13,6 +13,8 @@ IMG_SRC = {
     "tower": "tower.png",
     "bullet": "bullet.png",
     "orb": [f"orb{i}.png" for i in range(1, 5)],
+    "enemy_b": [f"enemy_b{i}.png" for i in [1, 2]],
+    "bullet_ene": "bullet_ene.png",
 }
 
 IMG_DICT = {}

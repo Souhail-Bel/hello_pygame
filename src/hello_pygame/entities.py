@@ -22,9 +22,8 @@ class AnimatedSprite(pygame.sprite.Sprite):
         self.image = self.sequence[int(self.current_frame)]
 
 
-class LivingSprite(pygame.sprite.Sprite):
+class LivingSprite:
     def __init__(self, init_HP: int, MAX_HP=0):
-        pygame.sprite.Sprite.__init__(self)
         self._MAX_HP = max(MAX_HP, init_HP)
         self._HP = init_HP
         self.is_alive = True

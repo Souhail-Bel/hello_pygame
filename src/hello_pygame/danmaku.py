@@ -15,11 +15,11 @@ class Bullet(pygame.sprite.Sprite):
 
     def update(self, dt: float):
         self.pos += self.vel * dt
-        self.rect.center = round(self.pos.x), round(self.pos.y)
+        self.rect.center = round(self.pos)
 
-        if not -self.__DEATH_MARGIN < self.pos.x < SCREEN_WIDTH:
+        if not -self.__DEATH_MARGIN < self.pos.x < SCREEN_WIDTH + self.__DEATH_MARGIN:
             self.kill()
-        if not -self.__DEATH_MARGIN < self.pos.y < SCREEN_HEIGHT:
+        if not -self.__DEATH_MARGIN < self.pos.y < SCREEN_HEIGHT + self.__DEATH_MARGIN:
             self.kill()
 
     def draw(self):

@@ -3,7 +3,7 @@ import pygame
 from pygame.locals import *
 from pygame.math import Vector2
 from hello_pygame.entities import AnimatedSprite, LivingSprite
-from hello_pygame.items import Bullet
+from hello_pygame.danmaku import Bullet
 from hello_pygame.settings import IMG_DICT, SCREEN_HEIGHT, SCREEN_WIDTH
 
 
@@ -32,7 +32,7 @@ class Orb(AnimatedSprite):
 
 
 class Player(LivingSprite, AnimatedSprite):
-    def __init__(self, bullet_group):
+    def __init__(self, bullet_group: pygame.sprite.Group):
         LivingSprite.__init__(self, init_HP=3)
 
         AnimatedSprite.__init__(self, sequence=IMG_DICT["reimu"], animation_speed=5)
@@ -40,11 +40,12 @@ class Player(LivingSprite, AnimatedSprite):
         # MOVEMENT
         self.SPEED = 300  # pixels/sec
         self.pos = Vector2(SCREEN_WIDTH / 2, 500)
-        self.rect.center = round(self.pos.x), round(self.pos.y)
+        self.rect.center = round(self.pos)
         self.is_focused = False
 
         # BULLETS
-        self.bullet_rate = 25  # bullets / sec
+        bullet_rate = 25  # bullets / sec
+        self.inv_bullet_rate = 1.0 / bullet_rate
         self.bullet_timer = 0.0
         self.bullet_group = bullet_group
 
@@ -80,13 +81,13 @@ class Player(LivingSprite, AnimatedSprite):
             self.pos.x = max(0, min(SCREEN_WIDTH, self.pos.x))
             self.pos.y = max(0, min(SCREEN_HEIGHT, self.pos.y))
 
-            self.rect.center = round(self.pos.x), round(self.pos.y)
+            self.rect.center = round(self.pos)
 
         if pressed_keys[K_RSHIFT] or pressed_keys[K_LSHIFT]:
             self.is_focused = True
 
         if pressed_keys[K_x] and self.bullet_timer <= 0:
-            self.bullet_timer = 1.0 / self.bullet_rate
+            self.bullet_timer = self.inv_bullet_rate
             self.shoot()
 
     def update(self, dt: float):

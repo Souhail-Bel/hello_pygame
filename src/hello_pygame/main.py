@@ -1,8 +1,10 @@
 import itertools
 import pygame, sys
 from pygame.locals import *
+from pygame.math import Vector2
+from hello_pygame.enemy import Enemy
 from hello_pygame.gfx import Background, stream_group
-from hello_pygame.items import Bullet
+from hello_pygame.danmaku import Bullet
 from hello_pygame.player import Player
 from hello_pygame.settings import *
 
@@ -23,6 +25,10 @@ def main():
 
     Player_Bullets = pygame.sprite.Group()
     P1 = Player(Player_Bullets)
+    Player_Position: Vector2 = P1.pos
+
+    Enemy_Bullets = pygame.sprite.Group()
+    E = Enemy(Enemy_Bullets)
 
     BG = Background()
 
@@ -45,13 +51,19 @@ def main():
                     P1.damage()
 
         P1.update(dt)
+        Player_Position = P1.pos
+
+        E.update(dt, Player_Position)
         P1.bullet_group.update(dt)
+        E.bullet_group.update(dt)
 
         display_buffer = itertools.chain(
             BG.draw_landscape(),
             BG.draw_tower(),
             stream_group(Player_Bullets),
             P1.draw(),
+            stream_group(Enemy_Bullets),
+            E.draw(),
         )
 
         DISPLAY_SURFACE.fblits(bg_buffer)
