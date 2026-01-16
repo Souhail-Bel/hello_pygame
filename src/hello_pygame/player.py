@@ -7,6 +7,61 @@ from hello_pygame.danmaku import Bullet
 from hello_pygame.settings import IMG_DICT, SCREEN_HEIGHT, SCREEN_WIDTH
 
 
+class UI:
+    def __init__(self, start_HP, max_HP=None):
+        self.current_HP: float = start_HP
+        if max_HP is None:
+            max_HP = self.current_HP
+        self.max_HP: float = max_HP
+
+        self.HP_Width = 128
+        self.HP_Height = 32
+        self.HP_padding = 5
+        self.HP_opacity = 0.8
+        self.HP_alpha = 255 * self.HP_opacity
+
+        self.HP_Color_Normal = (50, 222, 50, self.HP_alpha)
+        self.HP_Color_Critical = (222, 50, 50, self.HP_alpha)
+
+        self.HP_Surface = pygame.Surface((self.HP_Width, self.HP_Height), SRCALPHA)
+        self.HP_Rect = self.HP_Surface.get_rect(topright=(SCREEN_WIDTH - 20, 20))
+
+    def update(self, new_HP):
+        self.current_HP = new_HP
+
+        HP_color = (
+            self.HP_Color_Normal
+            if self.current_HP > self.max_HP / 2
+            else self.HP_Color_Critical
+        )
+        HP_relative_width = int((self.current_HP / self.max_HP) * self.HP_Width)
+
+        self.HP_Surface.fill((0, 0, 0, 0))
+
+        pygame.draw.rect(
+            self.HP_Surface,
+            (0, 0, 0, self.HP_alpha),
+            Rect((0, 0), (self.HP_Width, self.HP_Height)),
+            border_radius=5,
+        )
+
+        pygame.draw.rect(
+            self.HP_Surface,
+            HP_color,
+            Rect(
+                (self.HP_Width - self.HP_padding, self.HP_padding),
+                (
+                    -HP_relative_width + self.HP_padding * 2,
+                    self.HP_Height - self.HP_padding * 2,
+                ),
+            ),
+            border_radius=5,
+        )
+
+    def draw(self):
+        yield (self.HP_Surface, self.HP_Rect)
+
+
 class Orb(AnimatedSprite):
     def __init__(self, side: int, bullet_group):
         super().__init__(sequence=IMG_DICT["orb"], animation_speed=4)
@@ -33,7 +88,7 @@ class Orb(AnimatedSprite):
 
 class Player(LivingSprite, AnimatedSprite):
     def __init__(self, bullet_group: pygame.sprite.Group):
-        LivingSprite.__init__(self, init_HP=20)
+        LivingSprite.__init__(self, init_HP=10)
 
         AnimatedSprite.__init__(self, sequence=IMG_DICT["reimu"], animation_speed=5)
 
@@ -64,6 +119,10 @@ class Player(LivingSprite, AnimatedSprite):
         self.hitbox_surface = pygame.Surface((8, 8), SRCALPHA)
         pygame.draw.circle(self.hitbox_surface, "red", (4, 4), 4)
         pygame.draw.circle(self.hitbox_surface, "white", (4, 4), 3)
+
+        # UI
+        self.ui = UI(self.HP)
+        self.ui.update(self.HP)
 
     def shoot(self):
         for orb in self.orbs:
@@ -101,6 +160,7 @@ class Player(LivingSprite, AnimatedSprite):
             self.shoot()
 
     def update(self, dt: float):
+
         if not self.is_alive:
             return
 
@@ -136,6 +196,8 @@ class Player(LivingSprite, AnimatedSprite):
                 self.hitbox_surface.get_rect(center=self.rect.center),
             )
 
+        yield from self.ui.draw()
+
     def damage(self, amount=1):
         if self.invincibility_timer > 0:
             return
@@ -147,6 +209,7 @@ class Player(LivingSprite, AnimatedSprite):
         self.on_damage()
 
     def on_damage(self):
+        self.ui.update(self.HP)
         print("Ouchie")
 
     def on_death(self):
