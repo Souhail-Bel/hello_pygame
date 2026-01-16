@@ -4,7 +4,7 @@ from pygame.locals import *
 from pygame.math import Vector2
 from hello_pygame.enemy import Enemy
 from hello_pygame.gfx import Background, stream_group
-from hello_pygame.danmaku import Bullet
+from hello_pygame.danmaku import Bullet, CirclePattern
 from hello_pygame.player import Player
 from hello_pygame.settings import *
 
@@ -28,15 +28,21 @@ def main():
     Player_Position: Vector2 = P1.pos
 
     Enemy_Bullets = pygame.sprite.Group()
-    E = Enemy(Enemy_Bullets)
+    E = pygame.sprite.Group(
+        Enemy(
+            Enemy_Bullets,
+            init_vel=Vector2(0, 20),
+            init_bullet_pattern=CirclePattern(Enemy_Bullets, bullet_rate=5),
+        ),
+        Enemy(Enemy_Bullets, init_vel=Vector2(25, 20)),
+        Enemy(Enemy_Bullets, init_vel=Vector2(-25, 20)),
+    )
 
     BG = Background()
 
     bg_buffer = BG.draw_sky()
 
     while True:
-        # since there'll be bullet logic and moving parts...
-        # I don't want my game to run differently on 144Hz or sth
         dt = pyClock.tick(FPS) / 1000.0
 
         for event in pygame.event.get():
@@ -53,9 +59,11 @@ def main():
         P1.update(dt)
         Player_Position = P1.pos
 
-        E.update(dt, Player_Position)
-        P1.bullet_group.update(dt)
-        E.bullet_group.update(dt)
+        for enemy in E:
+            enemy.update(dt, Player_Position)
+            # enemy.bullet_group.update(dt)
+        Player_Bullets.update(dt)
+        Enemy_Bullets.update(dt)
 
         display_buffer = itertools.chain(
             BG.draw_landscape(),
@@ -63,7 +71,7 @@ def main():
             stream_group(Player_Bullets),
             P1.draw(),
             stream_group(Enemy_Bullets),
-            E.draw(),
+            stream_group(E),
         )
 
         DISPLAY_SURFACE.fblits(bg_buffer)
