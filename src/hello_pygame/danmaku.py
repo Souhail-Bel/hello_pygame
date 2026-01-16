@@ -29,7 +29,7 @@ class Bullet(pygame.sprite.Sprite):
 
 class BulletPattern(ABC):
     def __init__(
-        self, bullet_group: pygame.sprite.Group, bullet_speed=400, bullet_rate=20
+        self, bullet_group: pygame.sprite.Group, bullet_speed=400, bullet_rate=10
     ):
         self.bullet_group = bullet_group
         self.bullet_speed = bullet_speed

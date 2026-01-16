@@ -93,9 +93,11 @@ class Player(LivingSprite, AnimatedSprite):
         AnimatedSprite.__init__(self, sequence=IMG_DICT["reimu"], animation_speed=5)
 
         # MOVEMENT
-        self.SPEED = 300  # pixels/sec
+        self.SPEED = 400  # pixels/sec
         self.pos = Vector2(SCREEN_WIDTH / 2, 500)
         self.rect.center = round(self.pos)
+        self._SPEED_NORMAL = self.SPEED
+        self._SPEED_FOCUSED = self.SPEED / 2
         self.is_focused = False
 
         # BULLETS
@@ -129,9 +131,11 @@ class Player(LivingSprite, AnimatedSprite):
             orb.shoot()
 
     def handle_input(self, dt):
-        self.is_focused = False
 
         pressed_keys = pygame.key.get_pressed()
+
+        self.is_focused = pressed_keys[K_RSHIFT] or pressed_keys[K_LSHIFT]
+        self.SPEED = self._SPEED_FOCUSED if self.is_focused else self._SPEED_NORMAL
 
         move_dir = Vector2(0, 0)
 
@@ -151,9 +155,6 @@ class Player(LivingSprite, AnimatedSprite):
             self.pos.y = max(0, min(SCREEN_HEIGHT, self.pos.y))
 
             self.rect.center = round(self.pos)
-
-        if pressed_keys[K_RSHIFT] or pressed_keys[K_LSHIFT]:
-            self.is_focused = True
 
         if pressed_keys[K_x] and self.bullet_timer <= 0:
             self.bullet_timer = self._inv_bullet_rate
