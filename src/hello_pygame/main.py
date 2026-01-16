@@ -3,6 +3,7 @@ import pygame, sys
 from pygame.locals import *
 from pygame.math import Vector2
 from hello_pygame.enemy import Enemy
+from hello_pygame.entities import Handle_Collisions
 from hello_pygame.gfx import Background, stream_group
 from hello_pygame.danmaku import Bullet, CirclePattern
 from hello_pygame.player import Player
@@ -64,6 +65,8 @@ def main():
             # enemy.bullet_group.update(dt)
         Player_Bullets.update(dt)
         Enemy_Bullets.update(dt)
+
+        Handle_Collisions(P1, E, Player_Bullets, Enemy_Bullets)
 
         display_buffer = itertools.chain(
             BG.draw_landscape(),

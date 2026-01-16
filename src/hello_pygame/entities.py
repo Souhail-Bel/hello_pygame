@@ -60,3 +60,20 @@ class LivingSprite:
 
     def on_death(self):
         pass
+
+
+def Handle_Collisions(
+    player: LivingSprite,
+    enemy_group: pygame.sprite.Group,
+    player_bullets: pygame.sprite.Group,
+    enemy_bullets: pygame.sprite.Group,
+):
+    # Enemeis vs Player's Bullets
+    # kills player bullets (dokillb = True)
+    # keeps enemies alive for now :)
+    Enemies_Hits = pygame.sprite.groupcollide(
+        enemy_group, player_bullets, dokilla=False, dokillb=True
+    )
+
+    for enemy in Enemies_Hits.keys():
+        enemy.damage()

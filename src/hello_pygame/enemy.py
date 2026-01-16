@@ -14,7 +14,7 @@ class Enemy(LivingSprite, AnimatedSprite):
         init_vel=None,
         init_bullet_pattern=None,
     ):
-        LivingSprite.__init__(self, init_HP=20)
+        LivingSprite.__init__(self, init_HP=30)
         AnimatedSprite.__init__(self, sequence=IMG_DICT["enemy_b"], animation_speed=12)
 
         self.__DEATH_MARGIN = 10
@@ -37,9 +37,6 @@ class Enemy(LivingSprite, AnimatedSprite):
 
         self.bullet_hell = init_bullet_pattern
 
-        # self.bullet_hell = CirclePattern(self.bullet_group, bullet_rate=10)
-        # self.bullet_hell = AimPattern(self.bullet_group, bullet_rate=10)
-
     def update(self, dt: float, player_pos: Vector2):
         self.pos += self.vel * dt
         if (
@@ -57,3 +54,6 @@ class Enemy(LivingSprite, AnimatedSprite):
 
     def draw(self) -> Generator[tuple, None, None]:
         yield (self.image, self.rect)
+
+    def on_death(self):
+        self.kill()
