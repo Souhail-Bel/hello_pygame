@@ -68,12 +68,20 @@ def Handle_Collisions(
     player_bullets: pygame.sprite.Group,
     enemy_bullets: pygame.sprite.Group,
 ):
-    # Enemeis vs Player's Bullets
+    # Enemies vs Player's Bullets
     # kills player bullets (dokillb = True)
     # keeps enemies alive for now :)
     Enemies_Hits = pygame.sprite.groupcollide(
         enemy_group, player_bullets, dokilla=False, dokillb=True
     )
 
-    for enemy in Enemies_Hits.keys():
-        enemy.damage()
+    for enemy, bullet_list in Enemies_Hits.items():
+        for bullet in bullet_list:
+            enemy.damage()
+
+    Player_Hit = pygame.sprite.spritecollide(
+        player, enemy_bullets, dokill=True
+    ) or pygame.sprite.spritecollide(player, enemy_group, dokill=False)
+
+    if Player_Hit:
+        player.damage()

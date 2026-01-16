@@ -33,7 +33,7 @@ class Orb(AnimatedSprite):
 
 class Player(LivingSprite, AnimatedSprite):
     def __init__(self, bullet_group: pygame.sprite.Group):
-        LivingSprite.__init__(self, init_HP=3)
+        LivingSprite.__init__(self, init_HP=20)
 
         AnimatedSprite.__init__(self, sequence=IMG_DICT["reimu"], animation_speed=5)
 
@@ -45,7 +45,7 @@ class Player(LivingSprite, AnimatedSprite):
 
         # BULLETS
         bullet_rate = 25  # bullets / sec
-        self.inv_bullet_rate = 1.0 / bullet_rate
+        self._inv_bullet_rate = 1.0 / bullet_rate
         self.bullet_timer = 0.0
         self.bullet_group = bullet_group
 
@@ -54,6 +54,11 @@ class Player(LivingSprite, AnimatedSprite):
             Orb(side=1, bullet_group=self.bullet_group),
             Orb(side=-1, bullet_group=self.bullet_group),
         ]
+
+        # INVINCIBILITY
+        self.invincibility_timer = 0.0
+        self._invincibility_duration = 2
+        self.is_visible = True
 
     def shoot(self):
         for orb in self.orbs:
@@ -87,26 +92,54 @@ class Player(LivingSprite, AnimatedSprite):
             self.is_focused = True
 
         if pressed_keys[K_x] and self.bullet_timer <= 0:
-            self.bullet_timer = self.inv_bullet_rate
+            self.bullet_timer = self._inv_bullet_rate
             self.shoot()
 
     def update(self, dt: float):
         if not self.is_alive:
             return
+
         self.bullet_timer -= dt
+
         self.animate(dt)
+
         for orb in self.orbs:
             orb.update(dt, self.pos, self.is_focused)
+
         self.handle_input(dt)
 
+        self.is_visible = True
+        if self.invincibility_timer > 0:
+            self.invincibility_timer -= dt
+
+            if (self.invincibility_timer % 0.02) > 0.01:
+                self.is_visible = False
+
     def draw(self) -> Generator[tuple, None, None]:
-        yield (self.image, self.rect)
+        if not self.is_alive:
+            return
+
+        if self.is_visible:
+            yield (self.image, self.rect)
 
         for orb in self.orbs:
             yield from orb.draw()
 
+    def damage(self, amount=1):
+        if self.invincibility_timer > 0:
+            return
+
+        self.HP -= 1
+
+        self.invincibility_timer = self._invincibility_duration
+
+        self.on_damage()
+
     def on_damage(self):
         print("Ouchie")
+        pass
 
     def on_death(self):
-        self.rect.move_ip(0, 0)
+        # print("I has death")
+        self.pos = Vector2(SCREEN_WIDTH / 2, SCREEN_HEIGHT * 2)
+        self.rect.center = round(self.pos)

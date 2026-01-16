@@ -10,14 +10,15 @@ class Enemy(LivingSprite, AnimatedSprite):
     def __init__(
         self,
         bullet_group: pygame.sprite.Group,
+        init_HP=30,
         init_pos=None,
         init_vel=None,
         init_bullet_pattern=None,
     ):
-        LivingSprite.__init__(self, init_HP=30)
+        LivingSprite.__init__(self, init_HP=init_HP)
         AnimatedSprite.__init__(self, sequence=IMG_DICT["enemy_b"], animation_speed=12)
 
-        self.__DEATH_MARGIN = 10
+        self.__DEATH_MARGIN = 20
 
         if init_pos is None:
             init_pos = Vector2(SCREEN_WIDTH / 2, 50)
@@ -39,6 +40,7 @@ class Enemy(LivingSprite, AnimatedSprite):
 
     def update(self, dt: float, player_pos: Vector2):
         self.pos += self.vel * dt
+
         if (
             self.pos.y > SCREEN_HEIGHT + self.__DEATH_MARGIN
             or self.pos.x < self.__DEATH_MARGIN

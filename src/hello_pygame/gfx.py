@@ -1,6 +1,6 @@
 from typing import Generator
 import pygame
-from hello_pygame.settings import IMG_DICT, RES_DIR, SCREEN_HEIGHT, SCREEN_WIDTH
+from hello_pygame.settings import IMG_DICT, SCREEN_HEIGHT, SCREEN_WIDTH
 
 
 def stream_group(group: pygame.sprite.Group):
