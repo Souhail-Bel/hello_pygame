@@ -60,6 +60,11 @@ class Player(LivingSprite, AnimatedSprite):
         self._invincibility_duration = 2
         self.is_visible = True
 
+        # HITBOX
+        self.hitbox_surface = pygame.Surface((8, 8), SRCALPHA)
+        pygame.draw.circle(self.hitbox_surface, "red", (4, 4), 4)
+        pygame.draw.circle(self.hitbox_surface, "white", (4, 4), 3)
+
     def shoot(self):
         for orb in self.orbs:
             orb.shoot()
@@ -124,6 +129,12 @@ class Player(LivingSprite, AnimatedSprite):
 
         for orb in self.orbs:
             yield from orb.draw()
+
+        if self.is_focused:
+            yield (
+                self.hitbox_surface,
+                self.hitbox_surface.get_rect(center=self.rect.center),
+            )
 
     def damage(self, amount=1):
         if self.invincibility_timer > 0:

@@ -54,8 +54,8 @@ def main():
                 if event.key == pygame.K_q:
                     pygame.quit()
                     sys.exit()
-                elif event.key == pygame.K_c:
-                    P1.damage()
+                # elif event.key == pygame.K_c:
+                #   P1.damage()
 
         P1.update(dt)
         Player_Position = P1.pos
