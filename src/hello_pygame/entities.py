@@ -80,8 +80,16 @@ def Handle_Collisions(
             enemy.damage()
 
     Player_Hit = pygame.sprite.spritecollide(
-        player, enemy_bullets, dokill=True
-    ) or pygame.sprite.spritecollide(player, enemy_group, dokill=False)
+        player,
+        enemy_bullets,
+        dokill=True,
+        collided=pygame.sprite.collide_circle_ratio(0.1),
+    ) or pygame.sprite.spritecollide(
+        player,
+        enemy_group,
+        dokill=False,
+        collided=pygame.sprite.collide_circle_ratio(0.1),
+    )
 
     if Player_Hit:
         player.damage()

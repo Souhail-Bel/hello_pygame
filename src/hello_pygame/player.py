@@ -137,7 +137,6 @@ class Player(LivingSprite, AnimatedSprite):
 
     def on_damage(self):
         print("Ouchie")
-        pass
 
     def on_death(self):
         # print("I has death")
