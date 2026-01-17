@@ -13,7 +13,13 @@ dependencies = [
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
+[dependency-groups]
+dev = [
+    "pyinstrument>=5.1.2",
+]
+
 # now, we can run with 'uv run play'
 [project.scripts]
 # pkg.file:function
 play = "hello_pygame.main:main"
+profile = "hello_pygame.profiler:exec_profiler"
