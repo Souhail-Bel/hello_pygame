@@ -37,7 +37,11 @@ Then, whenever you want to run it, simply type:
 uv run play
 ```
 
-
+You can also profile the game to identify performance bottlenecks:
+```bash
+uv run profile
+```
+Keep in mind that **Clock.tick** makes the CPU wait.
 
 ## ⚙️ TO DO
 Given the projects department's important and quite useful remarks, I decided to create a TO-DO list to properly know where this project is going.
