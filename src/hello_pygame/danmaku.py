@@ -1,22 +1,63 @@
 from abc import ABC, abstractmethod
 import random
+from math import sin
 import pygame
 from pygame.math import Vector2
 from hello_pygame.settings import SCREEN_HEIGHT, SCREEN_WIDTH, TAU
 
 
 class Bullet(pygame.sprite.Sprite):
-    def __init__(self, pos, b_dir, img, speed=400):
+    def __init__(
+        self,
+        pos,
+        b_dir,
+        img,
+        speed=400,
+        accel=(0, 0),
+        friction=1.0,
+        angular_vel=0.0,
+        flail=0.0,
+        flail_freq=10,
+    ):
         super().__init__()
 
         self.image = img
         self.rect: pygame.Rect = self.image.get_rect()
+
         self.pos = Vector2(pos)
-        self.vel = speed * Vector2(b_dir).normalize()
+        self.vel = Vector2(b_dir)
+        if self.vel.length() != 0.0:
+            self.vel.normalize_ip()
+            self.vel *= speed
+        self.angular_vel = angular_vel
+        self.friction = friction
+        self.accel = Vector2(accel)
+
+        self.lifetime = 0.0
+        self.flail = flail
+        self.flail_frequency = flail_freq
+
         self.__DEATH_MARGIN = 10
 
     def update(self, dt: float):
-        self.pos += self.vel * dt
+        self.lifetime += dt
+
+        if self.friction != 1.0:
+            self.vel *= self.friction
+
+        self.vel += self.accel * dt
+
+        if self.angular_vel != 0.0:
+            self.vel.rotate_ip(self.angular_vel * dt)
+
+        delta_pos = self.vel * dt
+
+        if self.flail != 0:
+            perp_v_n = Vector2(self.vel.y, -self.vel.x).normalize()
+            sway = self.flail * sin(self.lifetime * self.flail_frequency)
+            delta_pos += perp_v_n * sway * dt
+
+        self.pos += delta_pos
         self.rect.center = round(self.pos)
 
         if not -self.__DEATH_MARGIN < self.pos.x < SCREEN_WIDTH + self.__DEATH_MARGIN:
@@ -82,6 +123,7 @@ class AimPattern(BulletPattern):
             bullet_dir.rotate_ip(offset)
 
         b = Bullet(shooter_pos, bullet_dir, bullet_img, self.bullet_speed)
+
         self.bullet_group.add(b)
 
 
