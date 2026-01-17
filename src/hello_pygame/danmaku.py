@@ -147,6 +147,7 @@ class CirclePattern(BulletPattern):
             self.bullet_group.add(b)
             bullet_dir.rotate_rad_ip(self.angle_fraction)
 
+
 class ConvergePattern(BulletPattern):
     def __init__(
         self,
@@ -159,15 +160,20 @@ class ConvergePattern(BulletPattern):
         self.rows = kwargs.get("rows", 10)
         self.spread = kwargs.get("spread", 80)
         self.ang_vel_0 = kwargs.get("ang_vel_0", 30)
-        self.center_rows = (self.rows-1)/2.0
+        self.center_rows = (self.rows - 1) / 2.0
 
     def shoot(self, shooter_pos, target_pos, bullet_img):
         for i in range(0, self.rows):
-            offset_x = (i-self.center_rows) * self.spread
+            offset_x = (i - self.center_rows) * self.spread
             bullet_pos = shooter_pos + Vector2(offset_x, 0)
 
             ang_vel = self.ang_vel_0 if offset_x > 0 else -self.ang_vel_0
 
-            b = Bullet(bullet_pos, (0,1), bullet_img, speed=self.bullet_speed, angular_vel=ang_vel)
+            b = Bullet(
+                bullet_pos,
+                (0, 1),
+                bullet_img,
+                speed=self.bullet_speed,
+                angular_vel=ang_vel,
+            )
             self.bullet_group.add(b)
-
