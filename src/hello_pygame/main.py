@@ -33,7 +33,7 @@ def main():
         Enemy(
             Enemy_Bullets,
             init_vel=Vector2(0, 20),
-            init_bullet_pattern=CirclePattern(Enemy_Bullets, bullet_rate=5),
+            init_bullet_pattern=CirclePattern(Enemy_Bullets, bullet_rate=1),
         ),
         Enemy(Enemy_Bullets, init_vel=Vector2(25, 20)),
         Enemy(Enemy_Bullets, init_vel=Vector2(-25, 20)),

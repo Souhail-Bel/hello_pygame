@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+import random
 import pygame
 from pygame.math import Vector2
 from hello_pygame.settings import SCREEN_HEIGHT, SCREEN_WIDTH, TAU
@@ -29,7 +30,11 @@ class Bullet(pygame.sprite.Sprite):
 
 class BulletPattern(ABC):
     def __init__(
-        self, bullet_group: pygame.sprite.Group, bullet_speed=400, bullet_rate=10
+        self,
+        bullet_group: pygame.sprite.Group,
+        bullet_speed=400,
+        bullet_rate=10,
+        **kwargs,
     ):
         self.bullet_group = bullet_group
         self.bullet_speed = bullet_speed
@@ -55,8 +60,27 @@ class StreamPattern(BulletPattern):
 
 
 class AimPattern(BulletPattern):
+    def __init__(
+        self,
+        bullet_group: pygame.sprite.Group,
+        bullet_speed=400,
+        bullet_rate=10,
+        **kwargs,
+    ):
+        super().__init__(bullet_group, bullet_speed, bullet_rate, **kwargs)
+        self.accuracy: float = kwargs.get("accuracy", 1.0)
+
     def shoot(self, shooter_pos, target_pos, bullet_img):
+
         bullet_dir = (target_pos - shooter_pos).normalize()
+
+        if self.accuracy < 1.0:
+            MAX_SPREAD_ANGLE = 180.0
+
+            curr_spread = MAX_SPREAD_ANGLE * (1.0 - self.accuracy)
+            offset = random.uniform(-curr_spread, curr_spread)
+            bullet_dir.rotate_ip(offset)
+
         b = Bullet(shooter_pos, bullet_dir, bullet_img, self.bullet_speed)
         self.bullet_group.add(b)
 
@@ -67,10 +91,10 @@ class CirclePattern(BulletPattern):
         bullet_group: pygame.sprite.Group,
         bullet_speed=400,
         bullet_rate=20,
-        count=14,
+        **kwargs,
     ):
-        super().__init__(bullet_group, bullet_speed, bullet_rate)
-        self.count = count
+        super().__init__(bullet_group, bullet_speed, bullet_rate, **kwargs)
+        self.count = kwargs.get("count", 14)
         self.angle_fraction: float = self.count / TAU
 
     def shoot(self, shooter_pos, target_pos, bullet_img):
