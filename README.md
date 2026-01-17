@@ -47,4 +47,6 @@ Keep in mind that **Clock.tick** makes the CPU wait.
 Given the projects department's important and quite useful remarks, I decided to create a TO-DO list to properly know where this project is going.
 - [X] Profiling game's performance to identify bottlenecks
 - [X] Adjustable Enemy's bullets' accuracy for a more fair gameplay
+- [X] Make the bullets smarter, by adding acceleration, friction, angular velocity, etc...
+- [ ] Make more interesting bullet patterns
 - [ ] Level descriptions via dictionary per level that contains relevant information (enemy types, bullet patterns, timers, etc...)

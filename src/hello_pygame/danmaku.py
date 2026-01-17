@@ -50,14 +50,13 @@ class Bullet(pygame.sprite.Sprite):
         if self.angular_vel != 0.0:
             self.vel.rotate_ip(self.angular_vel * dt)
 
-        delta_pos = self.vel * dt
+        self.pos += self.vel * dt
 
+        wobble = 0
         if self.flail != 0:
-            perp_v_n = Vector2(self.vel.y, -self.vel.x).normalize()
-            sway = self.flail * sin(self.lifetime * self.flail_frequency)
-            delta_pos += perp_v_n * sway * dt
+            wobble = self.flail * sin(self.lifetime * self.flail_frequency) * dt
 
-        self.pos += delta_pos
+        self.pos.x += wobble
         self.rect.center = round(self.pos)
 
         if not -self.__DEATH_MARGIN < self.pos.x < SCREEN_WIDTH + self.__DEATH_MARGIN:
