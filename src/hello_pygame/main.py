@@ -5,7 +5,7 @@ from pygame.math import Vector2
 from hello_pygame.enemy import Enemy
 from hello_pygame.entities import Handle_Collisions
 from hello_pygame.gfx import Background, stream_group
-from hello_pygame.danmaku import Bullet, CirclePattern
+from hello_pygame.danmaku import Bullet, CirclePattern, ConvergePattern
 from hello_pygame.player import Player
 from hello_pygame.settings import *
 
@@ -33,10 +33,11 @@ def main():
         Enemy(
             Enemy_Bullets,
             init_vel=Vector2(0, 20),
-            init_bullet_pattern=CirclePattern(Enemy_Bullets, bullet_rate=1),
+            # init_bullet_pattern=CirclePattern(Enemy_Bullets, bullet_rate=1),
+            init_bullet_pattern=ConvergePattern(Enemy_Bullets, bullet_speed=200, bullet_rate=1),
         ),
-        Enemy(Enemy_Bullets, init_vel=Vector2(25, 20)),
-        Enemy(Enemy_Bullets, init_vel=Vector2(-25, 20)),
+        # Enemy(Enemy_Bullets, init_vel=Vector2(25, 20)),
+        # Enemy(Enemy_Bullets, init_vel=Vector2(-25, 20)),
     )
 
     BG = Background()

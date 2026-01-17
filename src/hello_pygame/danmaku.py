@@ -123,6 +123,8 @@ class AimPattern(BulletPattern):
 
         b = Bullet(shooter_pos, bullet_dir, bullet_img, self.bullet_speed)
 
+        # b = Bullet(shooter_pos, (0, 0), bullet_img, 100, accel=(0, 10), flail=5)
+
         self.bullet_group.add(b)
 
 
@@ -144,3 +146,28 @@ class CirclePattern(BulletPattern):
             b = Bullet(shooter_pos, bullet_dir, bullet_img, self.bullet_speed)
             self.bullet_group.add(b)
             bullet_dir.rotate_rad_ip(self.angle_fraction)
+
+class ConvergePattern(BulletPattern):
+    def __init__(
+        self,
+        bullet_group: pygame.sprite.Group,
+        bullet_speed=400,
+        bullet_rate=20,
+        **kwargs,
+    ):
+        super().__init__(bullet_group, bullet_speed, bullet_rate, **kwargs)
+        self.rows = kwargs.get("rows", 10)
+        self.spread = kwargs.get("spread", 80)
+        self.ang_vel_0 = kwargs.get("ang_vel_0", 30)
+        self.center_rows = (self.rows-1)/2.0
+
+    def shoot(self, shooter_pos, target_pos, bullet_img):
+        for i in range(0, self.rows):
+            offset_x = (i-self.center_rows) * self.spread
+            bullet_pos = shooter_pos + Vector2(offset_x, 0)
+
+            ang_vel = self.ang_vel_0 if offset_x > 0 else -self.ang_vel_0
+
+            b = Bullet(bullet_pos, (0,1), bullet_img, speed=self.bullet_speed, angular_vel=ang_vel)
+            self.bullet_group.add(b)
+
