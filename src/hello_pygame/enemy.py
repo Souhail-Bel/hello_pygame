@@ -6,10 +6,6 @@ from hello_pygame.danmaku import *
 from hello_pygame.settings import IMG_DICT, SCREEN_HEIGHT, SCREEN_WIDTH
 
 
-# used cuz im scared of comparing floating points
-POS_TO_TARGET_TOLERANCE = 4
-
-
 class Enemy(LivingSprite, AnimatedSprite):
     def __init__(
         self,
@@ -20,17 +16,17 @@ class Enemy(LivingSprite, AnimatedSprite):
     ):
 
         img = "enemy_b"
-        init_HP = 20
+        init_HP = 40
 
         if ene_type == "red":
             img = "enemy_r"
-            init_HP = 30
+            init_HP = 60
         elif ene_type == "green":
             img = "enemy_g"
-            init_HP = 50
-        elif "boss":
+            init_HP = 100
+        elif ene_type == "boss":
             img = "mokou"
-            init_HP = 120
+            init_HP = 600
 
         LivingSprite.__init__(self, init_HP=init_HP)
         AnimatedSprite.__init__(self, sequence=IMG_DICT[img], animation_speed=12)
@@ -53,8 +49,11 @@ class Enemy(LivingSprite, AnimatedSprite):
         self.instruct_pointer = 0
         self.busy = False
         self.timer = 0.0
+
         self.move_pos = None
-        self.move_speed = 0
+        self.move_start_pos = Vector2(self.pos)
+        self.move_duration = 0.0
+        self.move_timer = 0.0
 
     def parse_script(self, script) -> list:
         ret = []
@@ -80,7 +79,13 @@ class Enemy(LivingSprite, AnimatedSprite):
 
             if cmd == "move":
                 self.move_pos = Vector2(float(args[0]), float(args[1]))
-                self.move_speed = float(args[2])
+                move_speed = float(args[2])
+
+                self.move_start_pos = Vector2(self.pos)
+                distance = self.pos.distance_to(self.move_pos)
+                self.move_duration = distance / move_speed if move_speed > 0 else 0
+
+                self.move_timer = 0.0
                 self.busy = True
 
             elif cmd == "wait":
@@ -108,17 +113,21 @@ class Enemy(LivingSprite, AnimatedSprite):
             # so don't expect yourself to compare floating-based vectors and get accurate results
             # so, have a "margin for reaching a target" thing
             if self.move_pos:
-                move_dir = self.move_pos - self.pos
-                # TODO check when move_dir is null!!
-                distance_to_target = move_dir.length()
-                if distance_to_target < POS_TO_TARGET_TOLERANCE:
+                self.move_timer += dt
+
+                if self.move_duration > 0:
+                    t = self.move_timer / self.move_duration
+                else:
+                    t = 1.0
+
+                if t >= 1.0:
                     self.pos = self.move_pos
                     self.move_pos = None
                     self.busy = False
                     self.instruct_pointer += 1
                 else:
-                    # TODO Ease-In
-                    self.pos += move_dir * self.move_speed * dt
+                    interp_t = t * t * (3 - 2 * t)
+                    self.pos = self.move_start_pos.lerp(self.move_pos, interp_t)
 
             # if we're not busy moving, we're busy waitin :P
             elif self.timer > 0:

@@ -76,7 +76,7 @@ PATTERN_REG = {
         radius=int(args[0]) if len(args) > 0 else 100,
         count=int(args[1]) if len(args) > 1 else 32,
     ),
-    "cc": lambda g, args: BlossomPattern(
+    "cc": lambda g, args: CircleConvergePattern(
         g,
         radius=int(args[0]) if len(args) > 0 else 100,
         count=int(args[1]) if len(args) > 1 else 32,
@@ -250,14 +250,14 @@ class StreamPattern(BulletPattern):
     def __init__(
         self,
         bullet_group: pygame.sprite.Group,
-        bullet_speed=400,
-        bullet_rate=10,
+        bullet_speed=200,
+        bullet_rate=4,
         **kwargs,
     ):
         super().__init__(bullet_group, bullet_speed, bullet_rate, **kwargs)
 
     def shoot(self, shooter_pos, target_pos, bullet_img):
-        b = Bullet(shooter_pos, (0, -1), bullet_img, self.bullet_speed)
+        b = Bullet(shooter_pos, (0, 1), bullet_img, self.bullet_speed)
         self.bullet_group.add(b)
 
 
@@ -265,7 +265,7 @@ class AimPattern(BulletPattern):
     def __init__(
         self,
         bullet_group: pygame.sprite.Group,
-        bullet_speed=400,
+        bullet_speed=200,
         bullet_rate=10,
         **kwargs,
     ):
@@ -292,13 +292,13 @@ class CirclePattern(BulletPattern):
     def __init__(
         self,
         bullet_group: pygame.sprite.Group,
-        bullet_speed=400,
-        bullet_rate=20,
+        bullet_speed=100,
+        bullet_rate=2,
         **kwargs,
     ):
         super().__init__(bullet_group, bullet_speed, bullet_rate, **kwargs)
         self.count = kwargs.get("count", 14)
-        self.angle_fraction: float = self.count / TAU
+        self.angle_fraction: float = TAU / self.count
 
     def shoot(self, shooter_pos, target_pos, bullet_img):
         bullet_dir = Vector2(0, 1)
@@ -312,8 +312,8 @@ class ConvergePattern(BulletPattern):
     def __init__(
         self,
         bullet_group: pygame.sprite.Group,
-        bullet_speed=400,
-        bullet_rate=20,
+        bullet_speed=200,
+        bullet_rate=2,
         **kwargs,
     ):
         super().__init__(bullet_group, bullet_speed, bullet_rate, **kwargs)
@@ -335,6 +335,7 @@ class ConvergePattern(BulletPattern):
                 bullet_img,
                 speed=self.bullet_speed,
                 angular_vel=ang_vel,
+                angular_drag=0.99,
             )
             self.bullet_group.add(b)
 
