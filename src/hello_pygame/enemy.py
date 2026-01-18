@@ -9,37 +9,55 @@ from hello_pygame.settings import IMG_DICT, SCREEN_HEIGHT, SCREEN_WIDTH
 class Enemy(LivingSprite, AnimatedSprite):
     def __init__(
         self,
+        ene_type: str,
+        init_pos: tuple,
+        script: list,
         bullet_group: pygame.sprite.Group,
-        init_HP=30,
-        init_pos=None,
-        init_vel=None,
-        init_bullet_pattern=None,
     ):
+
+        img = "enemy_b"
+        init_HP = 20
+
+        if ene_type == "red":
+            img = "enemy_r"
+            init_HP = 30
+        elif ene_type == "green":
+            img = "enemy_g"
+            init_HP = 50
+        elif "boss":
+            img = "mokou"
+            init_HP = 120
+
         LivingSprite.__init__(self, init_HP=init_HP)
-        AnimatedSprite.__init__(self, sequence=IMG_DICT["enemy_b"], animation_speed=12)
+        AnimatedSprite.__init__(self, sequence=IMG_DICT[img], animation_speed=12)
 
         self.__DEATH_MARGIN = 20
 
-        if init_pos is None:
-            init_pos = Vector2(SCREEN_WIDTH / 2, 50)
-
-        if init_vel is None:
-            init_vel = Vector2(0, 10)
-
         self.pos = Vector2(init_pos)
-        self.vel = Vector2(init_vel)
+        self.vel = Vector2(0, 0)
         self.rect.center = round(self.pos)
 
         self.bullet_group = bullet_group
+        # TODO change per type
         self.bullet_img = IMG_DICT["bullet_ene"]
+        self.bullet_hell = None
 
-        if init_bullet_pattern is None:
-            # init_bullet_pattern = AimPattern(
-            #     self.bullet_group, bullet_rate=5, accuracy=0.8
-            # )
-            init_bullet_pattern = CircleConvergePattern(bullet_group)
+        # script shenanigans
+        self.instructs = self.parse_script(script)
+        self.instruct_pointer = 0
+        self.busy = False
+        self.timer = 0.0
+        self.move_pos = None
+        self.move_speed = 0
 
-        self.bullet_hell = init_bullet_pattern
+    def parse_script(self, script) -> list:
+        ret = []
+        for instruct in script:
+            tok = instruct.split()
+            cmd = tok[0]
+            args = tok[1:]
+            ret.append((cmd, args))
+        return ret
 
     def update(self, dt: float, player_pos: Vector2):
         self.pos += self.vel * dt
