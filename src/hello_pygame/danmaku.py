@@ -48,6 +48,41 @@ from hello_pygame.settings import IMG_DICT, SCREEN_HEIGHT, SCREEN_WIDTH, TAU
 #         [radius, count]
 
 
+PATTERN_REG = {
+    # Normal
+    "stream": lambda g, args: StreamPattern(g),
+    "aim": lambda g, args: AimPattern(g, accuracy=float(args[0]) if args else 1.0),
+    "circle": lambda g, args: CirclePattern(g, count=int(args[0]) if args else 14),
+    "converge": lambda g, args: ConvergePattern(
+        g,
+        rows=int(args[0]) if len(args) > 0 else 10,
+        spread=int(args[1]) if len(args) > 1 else 80,
+        ang_vel_0=int(args[2]) if len(args) > 2 else 30,
+    ),
+    # Deployable
+    "rain": lambda g, args: RainPattern(
+        g,
+        row_count=int(args[0]) if len(args) > 0 else 12,
+        rain_width=int(args[1]) if len(args) > 1 else 750,
+    ),
+    "fish": lambda g, args: FishingPattern(
+        g,
+        radius=int(args[0]) if len(args) > 0 else 100,
+        count=int(args[1]) if len(args) > 1 else 16,
+    ),
+    "blossom": lambda g, args: BlossomPattern(
+        g,
+        radius=int(args[0]) if len(args) > 0 else 100,
+        count=int(args[1]) if len(args) > 1 else 32,
+    ),
+    "cc": lambda g, args: BlossomPattern(
+        g,
+        radius=int(args[0]) if len(args) > 0 else 100,
+        count=int(args[1]) if len(args) > 1 else 32,
+    ),
+}
+
+
 class Bullet(pygame.sprite.Sprite):
     def __init__(
         self,
