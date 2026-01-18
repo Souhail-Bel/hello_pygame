@@ -6,6 +6,48 @@ from pygame.math import Vector2
 from hello_pygame.settings import IMG_DICT, SCREEN_HEIGHT, SCREEN_WIDTH, TAU
 
 
+# Normal vs Deployable:
+#     normal spawn instantly, while deployable follow a lerping function to arrive at their positions before starting some action
+#
+# Format:
+#     PatternClassName: description
+#         "name_in_script"
+#         [argument_1, argument_2, ...]
+#
+# Example of pattern action in script:
+# "pattern aim 0.8"
+# this means start the AimPattern at 80% accuracy
+#
+#
+# Normal patterns:
+#     StreamPattern: streams down bullets
+#         "stream"
+#         []
+#     AimPattern: aims at player given an accuracy
+#         "aim"
+#         [accuracy]
+#     CirclePattern: extending circle given bullets count
+#         "circle"
+#         [count]
+#     ConvergePattern: spawns spread out rows of bullets that close on each other
+#         "converge"
+#         [rows, spread, ang_vel_0]
+#
+# Deployable patterns:
+#     RainPattern: similar to ConvergePattern, but with flailing
+#         "rain"
+#         [row_count, rain_width]
+#     FishingPattern: try and catch the player like a fishing net of radius and around the circle count
+#         "fish"
+#         [radius, count]
+#     BlossomPattern: galaxy like pattern extending from enemy
+#         "blossom"
+#         [radius, count]
+#     CircleConvergePattern: a combination of the circle and converge patterns :P
+#         "cc"
+#         [radius, count]
+
+
 class Bullet(pygame.sprite.Sprite):
     def __init__(
         self,
@@ -16,6 +58,7 @@ class Bullet(pygame.sprite.Sprite):
         accel=(0, 0),
         friction=1.0,
         angular_vel=0.0,
+        angular_drag=1.0,
         flail=0.0,
         flail_freq=10,
         **kwargs,
@@ -34,6 +77,7 @@ class Bullet(pygame.sprite.Sprite):
             self.vel.normalize_ip()
             self.vel *= speed
         self.angular_vel = angular_vel
+        self.angular_drag = angular_drag
         self.friction = friction
         self.accel = Vector2(accel)
 
@@ -41,7 +85,9 @@ class Bullet(pygame.sprite.Sprite):
         self.flail = flail
         self.flail_frequency = flail_freq
 
-        self.__DEATH_MARGIN = 10
+        self.__DEATH_MARGIN = 50
+
+        self.on_spawn()
 
     def update(self, dt: float):
         self.lifetime += dt
@@ -53,6 +99,8 @@ class Bullet(pygame.sprite.Sprite):
 
         if self.angular_vel != 0.0:
             self.vel.rotate_ip(self.angular_vel * dt)
+
+            self.angular_vel *= self.angular_drag
 
         self.pos += self.vel * dt
 
@@ -71,6 +119,10 @@ class Bullet(pygame.sprite.Sprite):
     def draw(self):
         yield (self.image, self.rect)
 
+    def on_spawn(self):
+        # for playing sound effect later
+        pass
+
 
 class DeployableBullet(Bullet):
     def __init__(
@@ -78,6 +130,7 @@ class DeployableBullet(Bullet):
         start_pos,
         end_pos,
         deploy_duration: float,
+        wait_duration=0.0,
         arrived_action="fall",
         target_pos=(0, 0),
         speed_final=400,
@@ -90,7 +143,10 @@ class DeployableBullet(Bullet):
         self.end_pos = Vector2(end_pos)
 
         self.deploy_duration = deploy_duration
-        self.deploy_timer = 0.0
+        # self.wait_duraion = wait_duration
+        self.wake_moment = wait_duration + deploy_duration
+
+        self.timer = 0.0
         self.deployed = False
 
         self.arrived_action = arrived_action
@@ -101,27 +157,32 @@ class DeployableBullet(Bullet):
         self.interp = interp
 
     def update(self, dt: float):
-        self.deploy_timer += dt
+        self.timer += dt
 
         if self.deployed:
             return super().update(dt)
 
-        if self.deploy_timer < self.deploy_duration:
-            t = self.deploy_timer / self.deploy_duration
+        if self.timer < self.deploy_duration:
+            t = self.timer / self.deploy_duration
 
             # thx geogebra
             t = self.interp(t)
 
             self.pos = self.start_pos.lerp(self.end_pos, t)
             self.rect.center = round(self.pos)
+        elif self.timer < self.wake_moment:
+            pass
+
         else:
             self.deployed = True
             self.pos = self.end_pos
-            self.arrived_behaviour()
+            self.on_deploy()
 
-    def arrived_behaviour(self):
+    def on_deploy(self):
         if self.arrived_action == "fall":
             self.vel = Vector2(0, 1) * self.speed_final
+        elif self.arrived_action == "aim":
+            self.vel = (self.target_pos - self.end_pos).normalize() * self.speed_final
 
 
 class BulletPattern(ABC):
@@ -150,6 +211,15 @@ class BulletPattern(ABC):
 
 
 class StreamPattern(BulletPattern):
+    def __init__(
+        self,
+        bullet_group: pygame.sprite.Group,
+        bullet_speed=400,
+        bullet_rate=10,
+        **kwargs,
+    ):
+        super().__init__(bullet_group, bullet_speed, bullet_rate, **kwargs)
+
     def shoot(self, shooter_pos, target_pos, bullet_img):
         b = Bullet(shooter_pos, (0, -1), bullet_img, self.bullet_speed)
         self.bullet_group.add(b)
@@ -178,8 +248,6 @@ class AimPattern(BulletPattern):
             bullet_dir.rotate_ip(offset)
 
         b = Bullet(shooter_pos, bullet_dir, bullet_img, self.bullet_speed)
-
-        # b = Bullet(shooter_pos, (0, 0), bullet_img, 100, accel=(0, 10), flail=5)
 
         self.bullet_group.add(b)
 
@@ -236,22 +304,136 @@ class ConvergePattern(BulletPattern):
 
 
 class RainPattern(BulletPattern):
-    def shoot(self, shooter_pos, target_pos, bullet_img):
-        self.inv_bullet_rate = 1.0 / 1
-        row_count = 10
-        row_width = 600
-        spread = row_width / row_count
+    def __init__(
+        self,
+        bullet_group: pygame.sprite.Group,
+        bullet_speed=100,
+        bullet_rate=1,
+        **kwargs,
+    ):
+        super().__init__(bullet_group, bullet_speed, bullet_rate, **kwargs)
+        self.row_count = kwargs.get("row_count", 12)
+        self.rain_width = kwargs.get("rain_width", 750)
+        self.center_rows = self.row_count / 2
+        self.spread = self.rain_width / self.row_count
 
-        for i in range(row_count):
-            offset_x = (i - (row_count / 2)) * spread
+    def shoot(self, shooter_pos, target_pos, bullet_img):
+
+        for i in range(self.row_count):
+            offset_x = (i - self.center_rows) * self.spread
             pos_to_fly_to = shooter_pos + Vector2(offset_x, 0)
 
             b = DeployableBullet(
                 shooter_pos,
                 pos_to_fly_to,
-                deploy_duration=0.5,
+                deploy_duration=1.5,
+                wait_duration=0.5,
                 arrived_action="fall",
-                speed_final=300,
+                speed_final=self.bullet_speed,
+                flail=100,
+                flail_freq=5,
                 angular_vel=0,
             )
+            self.bullet_group.add(b)
+
+
+class FishingPattern(BulletPattern):
+    def __init__(
+        self,
+        bullet_group: pygame.sprite.Group,
+        bullet_speed=100,
+        bullet_rate=1,
+        **kwargs,
+    ):
+        super().__init__(bullet_group, bullet_speed, bullet_rate, **kwargs)
+        self.radius = kwargs.get("radius", 100)
+        self.count = kwargs.get("count", 16)
+        self.angle_fraction = 360 / self.count
+
+    def shoot(self, shooter_pos, target_pos, bullet_img):
+
+        for i in range(self.count):
+            angle = i * self.angle_fraction
+            deploy_pos = target_pos + Vector2(self.radius, 0).rotate(angle)
+
+            b = DeployableBullet(
+                shooter_pos,
+                deploy_pos,
+                deploy_duration=2.5,
+                wait_duration=1.0,
+                arrived_action="aim",
+                speed_final=self.bullet_speed,
+                target_pos=target_pos,
+            )
+
+            self.bullet_group.add(b)
+
+
+class BlossomPattern(BulletPattern):
+    def __init__(
+        self,
+        bullet_group: pygame.sprite.Group,
+        bullet_speed=100,
+        bullet_rate=2,
+        **kwargs,
+    ):
+        super().__init__(bullet_group, bullet_speed, bullet_rate, **kwargs)
+        self.radius = kwargs.get("radius", 100)
+        self.count = kwargs.get("count", 32)
+        self.angle_fraction = 360 / self.count
+
+    def shoot(self, shooter_pos, target_pos, bullet_img):
+
+        for i in range(self.count):
+            angle = i * self.angle_fraction
+            deploy_pos = shooter_pos + Vector2(self.radius, 0).rotate(angle)
+
+            b = DeployableBullet(
+                shooter_pos,
+                deploy_pos,
+                deploy_duration=0.5,
+                wait_duration=0.5,
+                arrived_action="aim",
+                speed_final=self.bullet_speed,
+                target_pos=shooter_pos,
+                angular_vel=150,
+                angular_drag=0.99,
+            )
+
+            self.bullet_group.add(b)
+
+
+class CircleConvergePattern(BulletPattern):
+    def __init__(
+        self,
+        bullet_group: pygame.sprite.Group,
+        bullet_speed=100,
+        bullet_rate=2,
+        **kwargs,
+    ):
+        super().__init__(bullet_group, bullet_speed, bullet_rate, **kwargs)
+        self.radius = kwargs.get("radius", 100)
+        self.count = kwargs.get("count", 32)
+        self.angle_fraction = 360 / self.count
+
+    def shoot(self, shooter_pos, target_pos, bullet_img):
+
+        for i in range(self.count):
+            angle = i * self.angle_fraction
+            deploy_pos = shooter_pos + Vector2(self.radius, 0).rotate(angle)
+
+            ang_vel = 150 if i & 1 else -150
+
+            b = DeployableBullet(
+                shooter_pos,
+                deploy_pos,
+                deploy_duration=0.5,
+                wait_duration=0.5,
+                arrived_action="aim",
+                speed_final=self.bullet_speed,
+                target_pos=shooter_pos,
+                angular_vel=ang_vel,
+                angular_drag=0.99,
+            )
+
             self.bullet_group.add(b)
