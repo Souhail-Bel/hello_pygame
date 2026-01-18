@@ -6,6 +6,10 @@ from hello_pygame.danmaku import *
 from hello_pygame.settings import IMG_DICT, SCREEN_HEIGHT, SCREEN_WIDTH
 
 
+# used cuz im scared of comparing floating points
+POS_TO_TARGET_TOLERANCE = 4
+
+
 class Enemy(LivingSprite, AnimatedSprite):
     def __init__(
         self,
@@ -79,10 +83,33 @@ class Enemy(LivingSprite, AnimatedSprite):
                 self.move_speed = float(args[2])
                 self.busy = True
 
+            elif cmd == "wait":
+                self.timer = float(args[0])
+                self.busy = True
+
         if self.busy:
+
+            # Note that python is kinda mid
+            # so don't expect yourself to compare floating-based vectors and get accurate results
+            # so, have a "margin for reaching a target" thing
             if self.move_pos:
                 move_dir = self.move_pos - self.pos
-                self.pos += move_dir * self.move_speed * dt
+                # TODO check when move_dir is null!!
+                distance_to_target = move_dir.length()
+                if distance_to_target < POS_TO_TARGET_TOLERANCE:
+                    self.pos = self.move_pos
+                    self.move_pos = None
+                    self.busy = False
+                    self.instruct_pointer += 1
+                else:
+                    self.pos += move_dir * self.move_speed * dt
+
+            # if we're not busy moving, we're busy waitin :P
+            elif self.timer > 0:
+                self.timer -= dt
+                if self.timer <= 0:
+                    self.busy = False
+                    self.instruct_pointer += 1
 
         self.rect.center = round(self.pos)
         self.animate(dt)
