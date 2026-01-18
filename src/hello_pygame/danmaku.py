@@ -147,8 +147,8 @@ class Bullet(pygame.sprite.Sprite):
 
             self.angular_vel *= self.angular_drag
 
-            if self.align_to_vel:
-                self.rotate_img()
+        if self.align_to_vel:
+            self.rotate_img()
 
         self.pos += self.vel * dt
 
