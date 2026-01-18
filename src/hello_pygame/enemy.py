@@ -18,13 +18,15 @@ class Enemy(LivingSprite, AnimatedSprite):
         img = "enemy_b"
         init_HP = 40
 
-        if ene_type == "red":
+        self.ene_type = ene_type
+
+        if self.ene_type == "red":
             img = "enemy_r"
             init_HP = 60
-        elif ene_type == "green":
+        elif self.ene_type == "green":
             img = "enemy_g"
             init_HP = 100
-        elif ene_type == "boss":
+        elif self.ene_type == "boss":
             img = "mokou"
             init_HP = 600
 
@@ -37,8 +39,12 @@ class Enemy(LivingSprite, AnimatedSprite):
         self.rect.center = round(self.pos)
 
         self.bullet_group = bullet_group
-        # TODO change per type
         self.bullet_img = IMG_DICT["bullet_ene"]
+        self.bullet_aligned = False
+
+        if ene_type == "boss":
+            self.bullet_img = IMG_DICT["bullet_pell"]
+            self.bullet_aligned = True
 
         # None stands for not firing, calma UwU
         self.bullet_hell = None
@@ -99,6 +105,7 @@ class Enemy(LivingSprite, AnimatedSprite):
                 new_pattern = PATTERN_REG.get(pattern_name, None)
                 if new_pattern:
                     self.bullet_hell = new_pattern(self.bullet_group, pattern_args)
+                    self.bullet_hell.align_to_vel = self.bullet_aligned
                 else:
                     self.bullet_hell = None
 

@@ -94,6 +94,7 @@ class Bullet(pygame.sprite.Sprite):
         accel=(0, 0),
         friction=1.0,
         angular_vel=0.0,
+        align_to_vel=False,
         angular_drag=1.0,
         flail=0.0,
         flail_freq=10,
@@ -105,6 +106,7 @@ class Bullet(pygame.sprite.Sprite):
             self.image = IMG_DICT["bullet_ene"]
         else:
             self.image = img
+        self.orig_img = self.image
         self.rect: pygame.Rect = self.image.get_rect()
 
         self.pos = Vector2(pos)
@@ -116,6 +118,13 @@ class Bullet(pygame.sprite.Sprite):
         self.angular_drag = angular_drag
         self.friction = friction
         self.accel = Vector2(accel)
+
+        self.align_to_vel = align_to_vel
+        # use (1, 0) if sprite is horiz
+        self.img_up = Vector2(0, -1)
+
+        if self.align_to_vel:
+            self.rotate_img()
 
         self.lifetime = 0.0
         self.flail = flail
@@ -138,6 +147,9 @@ class Bullet(pygame.sprite.Sprite):
 
             self.angular_vel *= self.angular_drag
 
+            if self.align_to_vel:
+                self.rotate_img()
+
         self.pos += self.vel * dt
 
         wobble = 0
@@ -154,6 +166,12 @@ class Bullet(pygame.sprite.Sprite):
 
     def draw(self):
         yield (self.image, self.rect)
+
+    def rotate_img(self):
+        angle = self.vel.angle_to(self.img_up)
+
+        self.image = pygame.transform.rotate(self.orig_img, angle)
+        self.rect = self.image.get_rect(center=self.rect.center)
 
     def on_spawn(self):
         # for playing sound effect later
@@ -271,6 +289,7 @@ class AimPattern(BulletPattern):
     ):
         super().__init__(bullet_group, bullet_speed, bullet_rate, **kwargs)
         self.accuracy: float = kwargs.get("accuracy", 1.0)
+        self.align_to_vel: bool = kwargs.get("align_to_vel", False)
 
     def shoot(self, shooter_pos, target_pos, bullet_img):
 
@@ -283,7 +302,13 @@ class AimPattern(BulletPattern):
             offset = random.uniform(-curr_spread, curr_spread)
             bullet_dir.rotate_ip(offset)
 
-        b = Bullet(shooter_pos, bullet_dir, bullet_img, self.bullet_speed)
+        b = Bullet(
+            shooter_pos,
+            bullet_dir,
+            bullet_img,
+            self.bullet_speed,
+            align_to_vel=self.align_to_vel,
+        )
 
         self.bullet_group.add(b)
 
@@ -299,11 +324,18 @@ class CirclePattern(BulletPattern):
         super().__init__(bullet_group, bullet_speed, bullet_rate, **kwargs)
         self.count = kwargs.get("count", 14)
         self.angle_fraction: float = TAU / self.count
+        self.align_to_vel: bool = kwargs.get("align_to_vel", False)
 
     def shoot(self, shooter_pos, target_pos, bullet_img):
         bullet_dir = Vector2(0, 1)
         for c in range(self.count):
-            b = Bullet(shooter_pos, bullet_dir, bullet_img, self.bullet_speed)
+            b = Bullet(
+                shooter_pos,
+                bullet_dir,
+                bullet_img,
+                self.bullet_speed,
+                align_to_vel=self.align_to_vel,
+            )
             self.bullet_group.add(b)
             bullet_dir.rotate_rad_ip(self.angle_fraction)
 
@@ -321,6 +353,7 @@ class ConvergePattern(BulletPattern):
         self.spread = kwargs.get("spread", 80)
         self.ang_vel_0 = kwargs.get("ang_vel_0", 30)
         self.center_rows = (self.rows - 1) / 2.0
+        self.align_to_vel: bool = kwargs.get("align_to_vel", False)
 
     def shoot(self, shooter_pos, target_pos, bullet_img):
         for i in range(0, self.rows):
@@ -336,6 +369,7 @@ class ConvergePattern(BulletPattern):
                 speed=self.bullet_speed,
                 angular_vel=ang_vel,
                 angular_drag=0.99,
+                align_to_vel=self.align_to_vel,
             )
             self.bullet_group.add(b)
 
@@ -353,6 +387,7 @@ class RainPattern(BulletPattern):
         self.rain_width = kwargs.get("rain_width", 750)
         self.center_rows = self.row_count / 2
         self.spread = self.rain_width / self.row_count
+        self.align_to_vel: bool = kwargs.get("align_to_vel", False)
 
     def shoot(self, shooter_pos, target_pos, bullet_img):
 
@@ -363,6 +398,7 @@ class RainPattern(BulletPattern):
             b = DeployableBullet(
                 shooter_pos,
                 pos_to_fly_to,
+                img=bullet_img,
                 deploy_duration=1.5,
                 wait_duration=0.5,
                 arrived_action="fall",
@@ -370,6 +406,7 @@ class RainPattern(BulletPattern):
                 flail=100,
                 flail_freq=5,
                 angular_vel=0,
+                align_to_vel=self.align_to_vel,
             )
             self.bullet_group.add(b)
 
@@ -386,6 +423,7 @@ class FishingPattern(BulletPattern):
         self.radius = kwargs.get("radius", 100)
         self.count = kwargs.get("count", 16)
         self.angle_fraction = 360 / self.count
+        self.align_to_vel: bool = kwargs.get("align_to_vel", False)
 
     def shoot(self, shooter_pos, target_pos, bullet_img):
 
@@ -396,11 +434,13 @@ class FishingPattern(BulletPattern):
             b = DeployableBullet(
                 shooter_pos,
                 deploy_pos,
+                img=bullet_img,
                 deploy_duration=2.5,
                 wait_duration=1.0,
                 arrived_action="aim",
                 speed_final=self.bullet_speed,
                 target_pos=target_pos,
+                align_to_vel=self.align_to_vel,
             )
 
             self.bullet_group.add(b)
@@ -418,6 +458,7 @@ class BlossomPattern(BulletPattern):
         self.radius = kwargs.get("radius", 100)
         self.count = kwargs.get("count", 32)
         self.angle_fraction = 360 / self.count
+        self.align_to_vel: bool = kwargs.get("align_to_vel", False)
 
     def shoot(self, shooter_pos, target_pos, bullet_img):
 
@@ -428,6 +469,7 @@ class BlossomPattern(BulletPattern):
             b = DeployableBullet(
                 shooter_pos,
                 deploy_pos,
+                img=bullet_img,
                 deploy_duration=0.5,
                 wait_duration=0.5,
                 arrived_action="aim",
@@ -435,6 +477,7 @@ class BlossomPattern(BulletPattern):
                 target_pos=shooter_pos,
                 angular_vel=150,
                 angular_drag=0.99,
+                align_to_vel=self.align_to_vel,
             )
 
             self.bullet_group.add(b)
@@ -452,6 +495,7 @@ class CircleConvergePattern(BulletPattern):
         self.radius = kwargs.get("radius", 100)
         self.count = kwargs.get("count", 32)
         self.angle_fraction = 360 / self.count
+        self.align_to_vel: bool = kwargs.get("align_to_vel", False)
 
     def shoot(self, shooter_pos, target_pos, bullet_img):
 
@@ -464,6 +508,7 @@ class CircleConvergePattern(BulletPattern):
             b = DeployableBullet(
                 shooter_pos,
                 deploy_pos,
+                img=bullet_img,
                 deploy_duration=0.5,
                 wait_duration=0.5,
                 arrived_action="aim",
@@ -471,6 +516,7 @@ class CircleConvergePattern(BulletPattern):
                 target_pos=shooter_pos,
                 angular_vel=ang_vel,
                 angular_drag=0.99,
+                align_to_vel=self.align_to_vel,
             )
 
             self.bullet_group.add(b)
