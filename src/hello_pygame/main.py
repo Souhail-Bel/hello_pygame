@@ -11,6 +11,25 @@ from hello_pygame.player import Player
 from hello_pygame.settings import *
 
 
+# imma state till i machine
+
+
+def new_game_state():
+    """
+    player, player bullets
+    enemy group, enemy bullets,
+    stage_timer, co,
+    game_state
+    """
+    P_bullets = pygame.sprite.Group()
+    P = Player(P_bullets)
+
+    E_bullets = pygame.sprite.Group()
+    E_group = pygame.sprite.Group()
+
+    return P, P_bullets, E_group, E_bullets, 0.0, 0, "RUNNING"
+
+
 def main():
 
     pygame.init()

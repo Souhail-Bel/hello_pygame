@@ -32,6 +32,11 @@ class Enemy(LivingSprite, AnimatedSprite):
             img = "mokou"
             init_HP = 600
 
+        # TODO make it so you can add boss name with type
+        text_font = pygame.font.SysFont("Monospace", 24, bold=True, italic=True)
+        self.name_text_surf = text_font.render("Fujiwara no Mokou", True, (0, 0, 0))
+        self.name_text_surf.set_alpha(180)
+
         LivingSprite.__init__(self, init_HP=init_HP)
         AnimatedSprite.__init__(self, sequence=IMG_DICT[img], animation_speed=12)
 
@@ -185,12 +190,8 @@ class Enemy(LivingSprite, AnimatedSprite):
         )
 
         # TODO clean up this method and have the name be per Boss (not every Boss is Mokou OwO)
-        text_font = pygame.font.SysFont("Monospace", 24, bold=True, italic=True)
-        text_surface = text_font.render("Fujiwara no Mokou", True, (0, 0, 0))
-        text_surface.set_alpha(180)
-
         yield (HP_Surface, (x, y))
-        yield (text_surface, (x + 12, y + 2))
+        yield (self.name_text_surf, (x + 12, y + 2))
 
     def on_death(self):
         self.kill()

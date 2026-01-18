@@ -209,7 +209,7 @@ LEVEL_1 = [
         ],
     }, # boss is at 32
     {
-        "time": 1,
+        "time": 32,
         "type": "boss",
         "pos": (400, 0),
         "script": [
