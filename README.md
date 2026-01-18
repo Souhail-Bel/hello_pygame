@@ -2,14 +2,15 @@
 Much like the name suggests, this is a game that replicates space shooters... but more like Touhou's bullet hell :P \
 My hello_pygame.
 
-All assets here were drawn by me via LibreSprite (except for the sky, that's a real sky that's been palletized).
+All assets here were drawn by me via LibreSprite (except for the sky, that's a real sky that's been palletized). \
+Sound effects are from Touhou 6 EoSD (by ZUN)
 
 ## 🎮 How to play?
 Move Reimu via arrow keys. \
 Dodge bullets and enemies. \
 Hold X to shoot. \
 Hold shift to move slowly and see your hitbox! \
-Goodluck with Fujiwara :P 
+Goodluck with Fujiwara no Mokou, the boss :P 
 
 
 ## 🚀 How do I run it?
