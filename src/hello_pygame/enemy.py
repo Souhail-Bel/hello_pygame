@@ -34,7 +34,6 @@ class Enemy(LivingSprite, AnimatedSprite):
         self.__DEATH_MARGIN = 20
 
         self.pos = Vector2(init_pos)
-        self.vel = Vector2(0, 0)
         self.rect.center = round(self.pos)
 
         self.bullet_group = bullet_group
@@ -44,6 +43,7 @@ class Enemy(LivingSprite, AnimatedSprite):
 
         # script shenanigans
         self.instructs = self.parse_script(script)
+        self.__SCRIPT_LENGTH = len(self.instructs)
         self.instruct_pointer = 0
         self.busy = False
         self.timer = 0.0
@@ -60,19 +60,32 @@ class Enemy(LivingSprite, AnimatedSprite):
         return ret
 
     def update(self, dt: float, player_pos: Vector2):
-        self.pos += self.vel * dt
+        # self.pos += self.vel * dt
+        #
+        # if (
+        #     self.pos.y > SCREEN_HEIGHT + self.__DEATH_MARGIN
+        #     or self.pos.x < self.__DEATH_MARGIN
+        #     or self.pos.x > SCREEN_WIDTH + self.__DEATH_MARGIN
+        # ):
+        #     self.kill()
 
-        if (
-            self.pos.y > SCREEN_HEIGHT + self.__DEATH_MARGIN
-            or self.pos.x < self.__DEATH_MARGIN
-            or self.pos.x > SCREEN_WIDTH + self.__DEATH_MARGIN
-        ):
-            self.kill()
+        if not self.busy and self.instruct_pointer < self.__SCRIPT_LENGTH:
+            cmd, args = self.instructs[self.instruct_pointer]
+
+            if cmd == "move":
+                self.move_pos = Vector2(float(args[0]), float(args[1]))
+                self.move_speed = float(args[2])
+                self.busy = True
+
+        if self.busy:
+            if self.move_pos:
+                move_dir = self.move_pos - self.pos
+                self.pos += move_dir * self.move_speed * dt
 
         self.rect.center = round(self.pos)
         self.animate(dt)
 
-        if self.bullet_hell.canShoot(dt):
+        if self.bullet_hell and self.bullet_hell.canShoot(dt):
             self.bullet_hell.shoot(self.pos, player_pos, self.bullet_img)
 
     def draw(self) -> Generator[tuple, None, None]:
