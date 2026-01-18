@@ -49,10 +49,10 @@ It it incredibly simple to make your own level. \
 Each level is described in a list of dictionaries. \
 Each dictionary is considered an event. \
 Each event is composed of:
-    - time: a float that describes **WHEN** does the enemy appear
-    - type: a string that describes **WHAT** the enemy is ("red", "green", "boss", by default blue)
-    - pos: a tuple that describes **WHERE** the enemy initially is (X, Y)
-    - script: a list of instructions describing **HOW** the enemy behaves
+* **time:** a float that describes **WHEN** does the enemy appear
+* **type:** a string that describes **WHAT** the enemy is ("red", "green", "boss", by default blue)
+* **pos:** a tuple that describes **WHERE** the enemy initially is (X, Y)
+* **script:** a list of instructions describing **HOW** the enemy behaves
 
 Enemy scripting is handled by a basic interpreter that can take any of the following instructions:
 ### Moving the enemy
