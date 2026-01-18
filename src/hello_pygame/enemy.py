@@ -34,9 +34,10 @@ class Enemy(LivingSprite, AnimatedSprite):
         self.bullet_img = IMG_DICT["bullet_ene"]
 
         if init_bullet_pattern is None:
-            init_bullet_pattern = AimPattern(
-                self.bullet_group, bullet_rate=5, accuracy=0.8
-            )
+            # init_bullet_pattern = AimPattern(
+            #     self.bullet_group, bullet_rate=5, accuracy=0.8
+            # )
+            init_bullet_pattern = RainPattern(bullet_group)
 
         self.bullet_hell = init_bullet_pattern
 

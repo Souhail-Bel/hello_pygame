@@ -1,9 +1,9 @@
 from abc import ABC, abstractmethod
 import random
-from math import sin
+from math import fabs, sin
 import pygame
 from pygame.math import Vector2
-from hello_pygame.settings import SCREEN_HEIGHT, SCREEN_WIDTH, TAU
+from hello_pygame.settings import IMG_DICT, SCREEN_HEIGHT, SCREEN_WIDTH, TAU
 
 
 class Bullet(pygame.sprite.Sprite):
@@ -11,17 +11,21 @@ class Bullet(pygame.sprite.Sprite):
         self,
         pos,
         b_dir,
-        img,
+        img=None,
         speed=400,
         accel=(0, 0),
         friction=1.0,
         angular_vel=0.0,
         flail=0.0,
         flail_freq=10,
+        **kwargs,
     ):
         super().__init__()
 
-        self.image = img
+        if img is None:
+            self.image = IMG_DICT["bullet_ene"]
+        else:
+            self.image = img
         self.rect: pygame.Rect = self.image.get_rect()
 
         self.pos = Vector2(pos)
@@ -66,6 +70,58 @@ class Bullet(pygame.sprite.Sprite):
 
     def draw(self):
         yield (self.image, self.rect)
+
+
+class DeployableBullet(Bullet):
+    def __init__(
+        self,
+        start_pos,
+        end_pos,
+        deploy_duration: float,
+        arrived_action="fall",
+        target_pos=(0, 0),
+        speed_final=400,
+        interp=lambda x: x * (2 - x),
+        **kwargs,
+    ):
+        super().__init__(pos=start_pos, b_dir=(0, 0), speed=0, **kwargs)
+
+        self.start_pos = Vector2(start_pos)
+        self.end_pos = Vector2(end_pos)
+
+        self.deploy_duration = deploy_duration
+        self.deploy_timer = 0.0
+        self.deployed = False
+
+        self.arrived_action = arrived_action
+        self.target_pos = Vector2(target_pos)
+        self.speed_final = speed_final
+
+        # t = 1 + fabs(sin(-TAU * t)) / (-TAU * t)
+        self.interp = interp
+
+    def update(self, dt: float):
+        self.deploy_timer += dt
+
+        if self.deployed:
+            return super().update(dt)
+
+        if self.deploy_timer < self.deploy_duration:
+            t = self.deploy_timer / self.deploy_duration
+
+            # thx geogebra
+            t = self.interp(t)
+
+            self.pos = self.start_pos.lerp(self.end_pos, t)
+            self.rect.center = round(self.pos)
+        else:
+            self.deployed = True
+            self.pos = self.end_pos
+            self.arrived_behaviour()
+
+    def arrived_behaviour(self):
+        if self.arrived_action == "fall":
+            self.vel = Vector2(0, 1) * self.speed_final
 
 
 class BulletPattern(ABC):
@@ -175,5 +231,27 @@ class ConvergePattern(BulletPattern):
                 bullet_img,
                 speed=self.bullet_speed,
                 angular_vel=ang_vel,
+            )
+            self.bullet_group.add(b)
+
+
+class RainPattern(BulletPattern):
+    def shoot(self, shooter_pos, target_pos, bullet_img):
+        self.inv_bullet_rate = 1.0 / 1
+        row_count = 10
+        row_width = 600
+        spread = row_width / row_count
+
+        for i in range(row_count):
+            offset_x = (i - (row_count / 2)) * spread
+            pos_to_fly_to = shooter_pos + Vector2(offset_x, 0)
+
+            b = DeployableBullet(
+                shooter_pos,
+                pos_to_fly_to,
+                deploy_duration=0.5,
+                arrived_action="fall",
+                speed_final=300,
+                angular_vel=0,
             )
             self.bullet_group.add(b)
