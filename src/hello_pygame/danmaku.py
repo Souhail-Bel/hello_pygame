@@ -49,6 +49,7 @@ from hello_pygame.settings import IMG_DICT, SCREEN_HEIGHT, SCREEN_WIDTH, TAU
 
 
 PATTERN_REG = {
+    "none": None,
     # Normal
     "stream": lambda g, args: StreamPattern(g),
     "aim": lambda g, args: AimPattern(g, accuracy=float(args[0]) if args else 1.0),

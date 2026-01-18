@@ -39,6 +39,8 @@ class Enemy(LivingSprite, AnimatedSprite):
         self.bullet_group = bullet_group
         # TODO change per type
         self.bullet_img = IMG_DICT["bullet_ene"]
+
+        # None stands for not firing, calma UwU
         self.bullet_hell = None
 
         # script shenanigans
