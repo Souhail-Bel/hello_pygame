@@ -28,7 +28,9 @@ def new_game_state():
     E_bullets = pygame.sprite.Group()
     E_group = pygame.sprite.Group()
 
-    return P, P_bullets, E_group, E_bullets, 0.0, 0, "RUNNING"
+    Score = 0
+
+    return P, P_bullets, E_group, E_bullets, 0.0, 0, Score, "RUNNING"
 
 
 def load_ui(font: pygame.font.Font):
@@ -52,6 +54,8 @@ def main():
     UI_FONT = pygame.font.SysFont("Monospace", 64, bold=True, italic=True)
     UIs = load_ui(UI_FONT)
 
+    SCORE_FONT = pygame.font.SysFont("Monospace", 24, bold=True, italic=True)
+
     pyClock = pygame.time.Clock()
 
     DISPLAY_SURFACE = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
@@ -63,9 +67,16 @@ def main():
 
     BG = Background()
 
-    P1, Player_Bullets, Enemy_Group, Enemy_Bullets, STAGE_TIMER, CO, GAME_STATE = (
-        new_game_state()
-    )
+    (
+        P1,
+        Player_Bullets,
+        Enemy_Group,
+        Enemy_Bullets,
+        STAGE_TIMER,
+        CO,
+        Score,
+        GAME_STATE,
+    ) = new_game_state()
 
     Player_Position: Vector2 = P1.pos
 
@@ -97,6 +108,7 @@ def main():
                             Enemy_Bullets,
                             STAGE_TIMER,
                             CO,
+                            Score,
                             GAME_STATE,
                         ) = new_game_state()
         if GAME_STATE == "RUNNING":
@@ -126,7 +138,7 @@ def main():
             Player_Bullets.update(dt)
             Enemy_Bullets.update(dt)
 
-            Handle_Collisions(P1, Enemy_Group, Player_Bullets, Enemy_Bullets)
+            Score += Handle_Collisions(P1, Enemy_Group, Player_Bullets, Enemy_Bullets)
 
             STAGE_TIMER += dt
 
@@ -148,9 +160,17 @@ def main():
         DISPLAY_SURFACE.fblits(bg_buffer)
         DISPLAY_SURFACE.fblits(display_buffer)
 
+        # UI shenanigans
+
         if GAME_STATE in UIs:
             surf, rect = UIs[GAME_STATE]
             DISPLAY_SURFACE.blit(surf, rect)
+
+        Score_surf = SCORE_FONT.render(
+            f"SCORE: {Score}", True, (255, 255, 255), (128, 128, 128)
+        )
+
+        DISPLAY_SURFACE.blit(Score_surf, (20, SCREEN_HEIGHT - 40))
 
         pygame.display.update()
 

@@ -69,7 +69,9 @@ def Handle_Collisions(
     enemy_group: pygame.sprite.Group,
     player_bullets: pygame.sprite.Group,
     enemy_bullets: pygame.sprite.Group,
-):
+) -> int:
+    Score_gain = 0
+
     # Enemies vs Player's Bullets
     # kills player bullets (dokillb = True)
     # keeps enemies alive for now :)
@@ -80,6 +82,7 @@ def Handle_Collisions(
     for enemy, bullet_list in Enemies_Hits.items():
         for bullet in bullet_list:
             enemy.damage()
+            Score_gain += 1
 
     Player_Hit = pygame.sprite.spritecollide(
         player,
@@ -95,6 +98,8 @@ def Handle_Collisions(
 
     if Player_Hit:
         player.damage()
+
+    return Score_gain
 
 
 class VFX(AnimatedSprite):
