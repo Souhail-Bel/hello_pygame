@@ -14,6 +14,7 @@ from hello_pygame.settings import *
 def main():
 
     pygame.init()
+    pygame.font.init()
 
     pyClock = pygame.time.Clock()
 

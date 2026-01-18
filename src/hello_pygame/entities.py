@@ -1,4 +1,6 @@
 import pygame
+from pygame import Vector2
+from hello_pygame.settings import IMG_DICT
 
 
 class AnimatedSprite(pygame.sprite.Sprite):
@@ -93,3 +95,26 @@ def Handle_Collisions(
 
     if Player_Hit:
         player.damage()
+
+
+class VFX(AnimatedSprite):
+    def __init__(self, pos, images, parent=None):
+        super().__init__(sequence=images, animation_speed=10)
+
+        self.parent = parent
+        self.pos = Vector2(pos)
+        self.rect.center = round(self.pos)
+
+    def update(self, dt):
+        self.animate(dt)
+
+        if self.parent:
+            if not self.parent.is_alive:
+                self.kill()
+
+            else:
+                self.pos = self.parent.pos
+                self.rect.center = round(self.pos)
+
+    def draw(self):
+        return (self.image, self.rect)

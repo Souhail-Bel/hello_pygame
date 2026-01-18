@@ -1,7 +1,7 @@
 from collections.abc import Generator
 import pygame
 from pygame.math import Vector2
-from hello_pygame.entities import AnimatedSprite, LivingSprite
+from hello_pygame.entities import VFX, AnimatedSprite, LivingSprite
 from hello_pygame.danmaku import *
 from hello_pygame.settings import IMG_DICT, SCREEN_HEIGHT, SCREEN_WIDTH
 
@@ -19,6 +19,7 @@ class Enemy(LivingSprite, AnimatedSprite):
         init_HP = 40
 
         self.ene_type = ene_type
+        self.is_boss = False
 
         if self.ene_type == "red":
             img = "enemy_r"
@@ -27,6 +28,7 @@ class Enemy(LivingSprite, AnimatedSprite):
             img = "enemy_g"
             init_HP = 100
         elif self.ene_type == "boss":
+            self.is_boss = True
             img = "mokou"
             init_HP = 600
 
@@ -42,9 +44,11 @@ class Enemy(LivingSprite, AnimatedSprite):
         self.bullet_img = IMG_DICT["bullet_ene"]
         self.bullet_aligned = False
 
-        if ene_type == "boss":
+        self.aura = None
+        if self.is_boss:
             self.bullet_img = IMG_DICT["bullet_pell"]
             self.bullet_aligned = True
+            self.aura = VFX(self.pos, IMG_DICT["aura"], parent=self)
 
         # None stands for not firing, calma UwU
         self.bullet_hell = None
@@ -146,11 +150,47 @@ class Enemy(LivingSprite, AnimatedSprite):
         self.rect.center = round(self.pos)
         self.animate(dt)
 
+        if self.is_boss and self.aura:
+            self.aura.update(dt)
+
         if self.bullet_hell and self.bullet_hell.canShoot(dt):
             self.bullet_hell.shoot(self.pos, player_pos, self.bullet_img)
 
     def draw(self) -> Generator[tuple, None, None]:
+        if self.is_boss:
+            yield from self.draw_HP()
+        if self.is_boss and self.aura:
+            yield self.aura.draw()
         yield (self.image, self.rect)
+
+    def draw_HP(self):
+        bar_width = 600
+        bar_height = 24
+
+        x = 0
+        y = 0
+
+        ratio = max(0.0, min(1.0, self.HP / self._MAX_HP))
+        fill_width = int(bar_width * ratio)
+
+        HP_Surface = pygame.Surface((bar_width, bar_height), pygame.SRCALPHA)
+
+        alpha = 200
+        a = pygame.draw.rect(
+            HP_Surface, (50, 0, 0, alpha), (0, 0, bar_width, bar_height)
+        )
+        pygame.draw.rect(HP_Surface, (220, 0, 0, alpha), (0, 0, fill_width, bar_height))
+        pygame.draw.rect(
+            HP_Surface, (255, 255, 255, alpha), (0, 0, bar_width, bar_height), 2
+        )
+
+        # TODO clean up this method and have the name be per Boss (not every Boss is Mokou OwO)
+        text_font = pygame.font.SysFont("Monospace", 24, bold=True, italic=True)
+        text_surface = text_font.render("Fujiwara no Mokou", True, (0, 0, 0))
+        text_surface.set_alpha(180)
+
+        yield (HP_Surface, (x, y))
+        yield (text_surface, (x + 12, y + 2))
 
     def on_death(self):
         self.kill()

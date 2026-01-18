@@ -19,6 +19,7 @@ IMG_SRC = {
     "mokou": [f"boss{i}.png" for i in range(1, 4)],
     "bullet_pell": "bullet_pell.png",
     "bullet_ene": "bullet_ene.png",
+    "aura": [f"boss_aura{i}.png" for i in range(1, 9)],
 }
 
 IMG_DICT = {}
