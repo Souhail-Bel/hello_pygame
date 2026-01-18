@@ -16,6 +16,7 @@ IMG_SRC = {
     "enemy_r": [f"enemy_r{i}.png" for i in [1, 2]],
     "enemy_g": [f"enemy_g{i}.png" for i in [1, 2]],
     "enemy_b": [f"enemy_b{i}.png" for i in [1, 2]],
+    "mokou": [f"boss{i}.png" for i in range(1, 4)],
     "bullet_ene": "bullet_ene.png",
 }
 
