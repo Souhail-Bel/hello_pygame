@@ -100,3 +100,7 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+# honestly, i learned what python truly is through this project
+# and i regret NOTHING

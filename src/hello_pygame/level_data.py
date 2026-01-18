@@ -20,8 +20,10 @@ LEVEL_1 = [
         "pos": (400, 50),
         "script": [
             "move 400 300 20",
-            # "pattern aim 0.8",
+            "pattern aim 0.8",
             "wait 2.0",
+            "pattern none",
+            "wait 1.0",
             "move -50 500 1",
             "die",
         ],

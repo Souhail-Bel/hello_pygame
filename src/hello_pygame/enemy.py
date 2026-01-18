@@ -87,6 +87,21 @@ class Enemy(LivingSprite, AnimatedSprite):
                 self.timer = float(args[0])
                 self.busy = True
 
+            elif cmd == "pattern":
+                pattern_name = args[0]
+                pattern_args = args[1:]
+
+                new_pattern = PATTERN_REG.get(pattern_name, None)
+                if new_pattern:
+                    self.bullet_hell = new_pattern(self.bullet_group, pattern_args)
+                else:
+                    self.bullet_hell = None
+
+                self.instruct_pointer += 1
+
+            elif cmd == "die":
+                self.kill()  # X_X
+
         if self.busy:
 
             # Note that python is kinda mid
@@ -102,6 +117,7 @@ class Enemy(LivingSprite, AnimatedSprite):
                     self.busy = False
                     self.instruct_pointer += 1
                 else:
+                    # TODO Ease-In
                     self.pos += move_dir * self.move_speed * dt
 
             # if we're not busy moving, we're busy waitin :P
