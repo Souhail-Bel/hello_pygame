@@ -4,6 +4,13 @@ My hello_pygame.
 
 All assets here were drawn by me via LibreSprite (except for the sky, that's a real sky that's been palletized).
 
+## 🎮 How to play?
+Move Reimu via arrow keys. \
+Dodge bullets and enemies. \
+Hold X to shoot. \
+Hold shift to move slowly and see your hitbox! \
+Goodluck with Fujiwara :P 
+
 
 ## 🚀 How do I run it?
 First, install [`uv`](https://github.com/astral-sh/uv) which is an extremely fast and easy to use package and project manager. \

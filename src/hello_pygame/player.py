@@ -4,7 +4,7 @@ from pygame.locals import *
 from pygame.math import Vector2
 from hello_pygame.entities import AnimatedSprite, LivingSprite
 from hello_pygame.danmaku import Bullet
-from hello_pygame.settings import IMG_DICT, SCREEN_HEIGHT, SCREEN_WIDTH
+from hello_pygame.settings import IMG_DICT, SCREEN_HEIGHT, SCREEN_WIDTH, SFX
 
 
 class UI:
@@ -210,6 +210,7 @@ class Player(LivingSprite, AnimatedSprite):
         self.on_damage()
 
     def on_damage(self):
+        SFX["player_hit"].play()
         self.ui.update(self.HP)
         # print("Ouchie")
 

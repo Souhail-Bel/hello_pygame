@@ -105,6 +105,7 @@ class Enemy(LivingSprite, AnimatedSprite):
 
             elif cmd == "wait":
                 self.timer = float(args[0])
+                SFX["kira"].play()
                 self.busy = True
 
             elif cmd == "pattern":

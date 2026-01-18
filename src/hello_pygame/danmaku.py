@@ -3,7 +3,7 @@ import random
 from math import fabs, sin
 import pygame
 from pygame.math import Vector2
-from hello_pygame.settings import IMG_DICT, SCREEN_HEIGHT, SCREEN_WIDTH, TAU
+from hello_pygame.settings import IMG_DICT, SCREEN_HEIGHT, SCREEN_WIDTH, SFX, TAU
 
 
 # Normal vs Deployable:
@@ -275,6 +275,7 @@ class StreamPattern(BulletPattern):
         super().__init__(bullet_group, bullet_speed, bullet_rate, **kwargs)
 
     def shoot(self, shooter_pos, target_pos, bullet_img):
+        SFX["shoot"].play()
         b = Bullet(shooter_pos, (0, 1), bullet_img, self.bullet_speed)
         self.bullet_group.add(b)
 
@@ -293,6 +294,7 @@ class AimPattern(BulletPattern):
 
     def shoot(self, shooter_pos, target_pos, bullet_img):
 
+        SFX["shoot"].play()
         bullet_dir = (target_pos - shooter_pos).normalize()
 
         if self.accuracy < 1.0:
@@ -327,6 +329,7 @@ class CirclePattern(BulletPattern):
         self.align_to_vel: bool = kwargs.get("align_to_vel", False)
 
     def shoot(self, shooter_pos, target_pos, bullet_img):
+        SFX["shoot"].play()
         bullet_dir = Vector2(0, 1)
         for c in range(self.count):
             b = Bullet(
@@ -356,6 +359,7 @@ class ConvergePattern(BulletPattern):
         self.align_to_vel: bool = kwargs.get("align_to_vel", False)
 
     def shoot(self, shooter_pos, target_pos, bullet_img):
+        SFX["shoot"].play()
         for i in range(0, self.rows):
             offset_x = (i - self.center_rows) * self.spread
             bullet_pos = shooter_pos + Vector2(offset_x, 0)
@@ -391,6 +395,7 @@ class RainPattern(BulletPattern):
 
     def shoot(self, shooter_pos, target_pos, bullet_img):
 
+        SFX["shoot"].play()
         for i in range(self.row_count):
             offset_x = (i - self.center_rows) * self.spread
             pos_to_fly_to = shooter_pos + Vector2(offset_x, 0)
@@ -427,6 +432,7 @@ class FishingPattern(BulletPattern):
 
     def shoot(self, shooter_pos, target_pos, bullet_img):
 
+        SFX["shoot"].play()
         for i in range(self.count):
             angle = i * self.angle_fraction
             deploy_pos = target_pos + Vector2(self.radius, 0).rotate(angle)
@@ -462,6 +468,7 @@ class BlossomPattern(BulletPattern):
 
     def shoot(self, shooter_pos, target_pos, bullet_img):
 
+        SFX["shoot"].play()
         for i in range(self.count):
             angle = i * self.angle_fraction
             deploy_pos = shooter_pos + Vector2(self.radius, 0).rotate(angle)
@@ -499,6 +506,7 @@ class CircleConvergePattern(BulletPattern):
 
     def shoot(self, shooter_pos, target_pos, bullet_img):
 
+        SFX["shoot"].play()
         for i in range(self.count):
             angle = i * self.angle_fraction
             deploy_pos = shooter_pos + Vector2(self.radius, 0).rotate(angle)

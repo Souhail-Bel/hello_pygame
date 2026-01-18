@@ -111,6 +111,7 @@ def main():
                             Score,
                             GAME_STATE,
                         ) = new_game_state()
+                        bg_buffer = BG.draw_sky()
         if GAME_STATE == "RUNNING":
             while CO < len(LEVEL_1):
                 eve = LEVEL_1[CO]

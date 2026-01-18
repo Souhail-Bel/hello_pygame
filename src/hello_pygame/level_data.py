@@ -207,9 +207,9 @@ LEVEL_1 = [
             "move 400 650 200",
             "die",
         ],
-    }, # boss is at 32
+    },
     {
-        "time": 32,
+        "time": 40,
         "type": "boss",
         "pos": (400, 0),
         "script": [

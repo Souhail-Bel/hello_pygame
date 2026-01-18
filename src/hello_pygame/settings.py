@@ -24,6 +24,8 @@ IMG_SRC = {
 
 IMG_DICT = {}
 
+SFX = {}
+
 
 def load_res():
     global IMG_DICT
@@ -34,6 +36,24 @@ def load_res():
                 IMG_DICT[k].append(pygame.image.load(RES_DIR / a).convert_alpha())
         else:
             IMG_DICT[k] = pygame.image.load(RES_DIR / v).convert_alpha()
+
+    pygame.mixer.pre_init(44100, -16, 2, 512)
+    pygame.mixer.init()
+
+    SFX["enemy_hit"] = pygame.mixer.Sound(RES_DIR / "damage00.wav")
+    SFX["enemy_hit"].set_volume(0.2)
+
+    SFX["kira"] = pygame.mixer.Sound(RES_DIR / "kira00.wav")
+    SFX["kira"].set_volume(0.3)
+
+    SFX["player_hit"] = pygame.mixer.Sound(RES_DIR / "pldead00.wav")
+    SFX["player_hit"].set_volume(0.2)
+
+    SFX["shoot"] = pygame.mixer.Sound(RES_DIR / "tan00.wav")
+    SFX["shoot"].set_volume(0.1)
+
+    # pygame.mixer.music.load(RES_DIR / 'music.wav')
+    # pygame.mixer.music.set_volume()
 
 
 SCREEN_WIDTH = 800

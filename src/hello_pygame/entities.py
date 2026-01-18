@@ -1,6 +1,6 @@
 import pygame
 from pygame import Vector2
-from hello_pygame.settings import IMG_DICT
+from hello_pygame.settings import IMG_DICT, SFX
 
 
 class AnimatedSprite(pygame.sprite.Sprite):
@@ -81,6 +81,7 @@ def Handle_Collisions(
 
     for enemy, bullet_list in Enemies_Hits.items():
         for bullet in bullet_list:
+            SFX["enemy_hit"].play()
             enemy.damage()
             Score_gain += 1
 
