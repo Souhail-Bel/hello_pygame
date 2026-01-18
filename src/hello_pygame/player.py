@@ -211,7 +211,7 @@ class Player(LivingSprite, AnimatedSprite):
 
     def on_damage(self):
         self.ui.update(self.HP)
-        print("Ouchie")
+        # print("Ouchie")
 
     def on_death(self):
         # print("I has death")

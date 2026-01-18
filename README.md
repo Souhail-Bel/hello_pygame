@@ -113,4 +113,6 @@ Given the projects department's important and quite useful remarks, I decided to
 - [X] Make more interesting bullet patterns
 - [X] Level descriptions via dictionary per level that contains relevant information (enemy types, bullet patterns, timers, etc...)
 - [X] Create a full-fledged level
+- [X] Add pause/win/game over
+- [ ] Add score system
 - [ ] Better documentation for patterns with pictures
